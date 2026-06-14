@@ -1,0 +1,2568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>统一权限中心 · Unified Permission Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   统一权限中心 — Apple-language design tokens
+   ============================================================ */
+:root {
+  /* Accent (single brand interactive color) */
+  --blue: #0066cc;
+  --blue-focus: #0071e3;
+  --blue-on-dark: #2997ff;
+  --blue-wash: #eaf2fb;
+  --blue-wash-strong: #dbeafd;
+
+  /* Ink / text */
+  --ink: #1d1d1f;
+  --ink-80: #333333;
+  --ink-60: #5c5c60;
+  --ink-48: #7a7a7a;
+
+  /* Surfaces */
+  --canvas: #ffffff;
+  --parchment: #f5f5f7;
+  --pearl: #fafafc;
+  --tile-dark: #272729;
+  --tile-dark-2: #2a2a2c;
+
+  /* Lines */
+  --hairline: #e0e0e0;
+  --divider: #f0f0f0;
+
+  /* Functional status tones (kept low-chroma, never compete with blue) */
+  --ok: #1a7f47;
+  --ok-wash: #e7f3ec;
+  --warn: #9a6a00;
+  --warn-wash: #f6efdc;
+  --deny: #b3261e;
+  --deny-wash: #fbeae9;
+  --super: #6b4ea8;
+  --super-wash: #efeaf7;
+
+  /* Radii */
+  --r-xs: 5px;
+  --r-sm: 8px;
+  --r-md: 11px;
+  --r-lg: 18px;
+  --r-pill: 9999px;
+
+  /* Spacing scale */
+  --s-xxs: 4px;
+  --s-xs: 8px;
+  --s-sm: 12px;
+  --s-md: 17px;
+  --s-lg: 24px;
+  --s-xl: 32px;
+  --s-xxl: 48px;
+
+  /* Fonts */
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+
+  /* The one allowed elevation — only on floating chrome (drawers, modals, sticky) */
+  --float-shadow: 0 20px 60px rgba(0,0,0,0.16), 0 4px 12px rgba(0,0,0,0.06);
+  --rest-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-text);
+  color: var(--ink);
+  background: var(--parchment);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-size: 15px;
+  line-height: 1.47;
+  letter-spacing: -0.01em;
+}
+#root { height: 100vh; overflow: hidden; }
+
+/* Typography helpers */
+.t-hero { font-family: var(--font-display); font-size: 44px; font-weight: 600; line-height: 1.07; letter-spacing: -0.02em; }
+.t-display { font-family: var(--font-display); font-size: 32px; font-weight: 600; line-height: 1.1; letter-spacing: -0.018em; }
+.t-title { font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1.16; letter-spacing: -0.015em; }
+.t-section { font-family: var(--font-display); font-size: 19px; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; }
+.t-lead { font-family: var(--font-display); font-size: 21px; font-weight: 400; line-height: 1.3; letter-spacing: -0.005em; color: var(--ink-60); }
+.t-body { font-size: 15px; font-weight: 400; line-height: 1.5; }
+.t-body-strong { font-size: 15px; font-weight: 600; letter-spacing: -0.012em; }
+.t-cap { font-size: 13px; font-weight: 400; color: var(--ink-48); letter-spacing: -0.006em; }
+.t-cap-strong { font-size: 13px; font-weight: 600; color: var(--ink-60); letter-spacing: -0.006em; }
+.t-micro { font-size: 11px; font-weight: 500; letter-spacing: 0.02em; }
+.t-mono { font-family: "SF Mono", ui-monospace, "JetBrains Mono", "Menlo", monospace; font-size: 12.5px; letter-spacing: -0.01em; }
+
+.muted { color: var(--ink-48); }
+.muted-60 { color: var(--ink-60); }
+
+/* Scrollbars — quiet */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 9999px; border: 3px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: #bdbdc2; background-clip: content-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Focus ring */
+button:focus-visible, a:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--blue-focus);
+  outline-offset: 2px;
+}
+
+/* Buttons */
+.btn { font-family: var(--font-text); font-size: 14px; font-weight: 400; letter-spacing: -0.01em; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; transition: transform .08s ease, background .15s ease, opacity .15s ease; white-space: nowrap; }
+.btn:active { transform: scale(0.96); }
+.btn[disabled] { opacity: .4; cursor: not-allowed; }
+.btn-primary { background: var(--blue); color: #fff; border-radius: var(--r-pill); padding: 9px 20px; }
+.btn-primary:hover { background: #0a6ed6; }
+.btn-ghost { background: transparent; color: var(--blue); border: 1px solid var(--blue); border-radius: var(--r-pill); padding: 8px 19px; }
+.btn-ghost:hover { background: var(--blue-wash); }
+.btn-neutral { background: var(--canvas); color: var(--ink); border: 1px solid var(--hairline); border-radius: var(--r-pill); padding: 8px 18px; }
+.btn-neutral:hover { background: var(--pearl); border-color: #cfcfd4; }
+.btn-dark { background: var(--ink); color: #fff; border-radius: var(--r-sm); padding: 7px 15px; font-size: 13px; }
+.btn-danger { background: transparent; color: var(--deny); border: 1px solid #e4b6b3; border-radius: var(--r-pill); padding: 8px 18px; }
+.btn-danger:hover { background: var(--deny-wash); }
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+.btn-text { background: transparent; color: var(--blue); padding: 4px 6px; border-radius: var(--r-xs); }
+.btn-text:hover { background: var(--blue-wash); }
+
+/* Card */
+.card { background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-lg); }
+
+/* Hairline utility */
+.hr { height: 1px; background: var(--hairline); border: none; margin: 0; }
+
+/* Fade/slide animations */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideInRight { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+.anim-fade { animation: fadeUp .4s cubic-bezier(.2,.7,.2,1) both; }
+
+input, select, textarea { font-family: var(--font-text); }
+
+</style>
+<template id="__bundler_thumbnail">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#0066cc"/>
+<path d="M50 24l18 8v13c0 11.5-7.7 19.2-18 23-10.3-3.8-18-11.5-18-23V32z" fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round"/>
+<circle cx="50" cy="44" r="6" fill="#fff"/>
+<path d="M50 50v9" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>
+</svg>
+</template>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+/* ============================================================
+   Seed data — shaped to mirror the /api/global/* responses.
+   All field names match the documented API contract so the
+   page→API mapping is literal, not decorative.
+   ============================================================ */
+(function () {
+  // ---- /api/global/project/list -> data.list (codes) ----
+  const PROJECTS = [
+    { code: "portal",   name: "Portal Center",   cn: "门户中心",   users: 612, supers: 4, groups: 28, menus: 214 },
+    { code: "workflow", name: "Workflow Center", cn: "流程中心",   users: 488, supers: 3, groups: 31, menus: 256 },
+    { code: "message",  name: "Message Center",  cn: "消息中心",   users: 305, supers: 2, groups: 22, menus: 188 },
+    { code: "news",     name: "News Center",     cn: "资讯中心",   users: 274, supers: 2, groups: 19, menus: 167 },
+    { code: "quality",  name: "Quality Center",  cn: "质量中心",   users: 351, supers: 3, groups: 26, menus: 201 },
+    { code: "rbac",     name: "RBAC Center",     cn: "权限中心",   users: 126, supers: 5, groups: 32, menus: 222 },
+  ];
+
+  const pname = (code) => (PROJECTS.find(p => p.code === code) || { name: code }).name;
+
+  // ---- /api/global/group/list -> list items ----
+  // fields: groupCode, groupName, project, parent_group_code, status, permissionCodes
+  const GROUPS = [
+    { groupCode: "portal_admin",   groupName: "门户管理员",   project: "portal",   parent_group_code: null,           status: "Active",   members: 12, permissionCodes: ["menu:portal.home","menu:portal.layout","button:portal.publish","menu:portal.user","button:portal.user.edit"] },
+    { groupCode: "portal_editor",  groupName: "门户编辑",     project: "portal",   parent_group_code: "portal_admin", status: "Active",   members: 34, permissionCodes: ["menu:portal.home","button:portal.publish"] },
+    { groupCode: "workflow_admin", groupName: "流程管理员",   project: "workflow", parent_group_code: null,           status: "Active",   members: 9,  permissionCodes: ["menu:workflow.design","menu:workflow.instance","button:workflow.deploy","menu:workflow.form"] },
+    { groupCode: "workflow_ops",   groupName: "流程运维",     project: "workflow", parent_group_code: "workflow_admin", status: "Active", members: 18, permissionCodes: ["menu:workflow.instance","button:workflow.retry"] },
+    { groupCode: "message_admin",  groupName: "消息管理员",   project: "message",  parent_group_code: null,           status: "Active",   members: 7,  permissionCodes: ["menu:message.template","menu:message.channel","button:message.send"] },
+    { groupCode: "news_admin",     groupName: "资讯管理员",   project: "news",     parent_group_code: null,           status: "Active",   members: 6,  permissionCodes: ["menu:news.article","menu:news.category","button:news.publish"] },
+    { groupCode: "news_reviewer",  groupName: "资讯审核",     project: "news",     parent_group_code: "news_admin",   status: "Disabled", members: 4,  permissionCodes: ["menu:news.article","button:news.review"] },
+    { groupCode: "quality_admin",  groupName: "质量管理员",   project: "quality",  parent_group_code: null,           status: "Active",   members: 11, permissionCodes: ["menu:quality.audit","menu:quality.report","button:quality.export"] },
+    { groupCode: "quality_viewer", groupName: "质量只读",     project: "quality",  parent_group_code: "quality_admin", status: "Active",  members: 52, permissionCodes: ["menu:quality.report"] },
+    { groupCode: "rbac_admin",     groupName: "权限管理员",   project: "rbac",     parent_group_code: null,           status: "Active",   members: 5,  permissionCodes: ["menu:system","menu:system.user","menu:system.group","button:admin.edit","menu:system.rule"] },
+    { groupCode: "rbac_auditor",   groupName: "权限审计员",   project: "rbac",     parent_group_code: "rbac_admin",   status: "Active",   members: 8,  permissionCodes: ["menu:search.audit","menu:search.permission"] },
+    { groupCode: "operator",       groupName: "通用操作员",   project: "message",  parent_group_code: null,           status: "Active",   members: 41, permissionCodes: ["menu:message.template","button:message.send"] },
+  ];
+
+  // ---- /api/global/user/list -> list items ----
+  // fields: userid, username, status, projectCodes, groupCodes, groupNames, superProjects, isSuper
+  function mkUser(userid, username, status, grants) {
+    // grants: { [projectCode]: { groups:[groupCode], super:bool } }
+    const projectCodes = Object.keys(grants).filter(k => k !== "__global__");
+    const groupCodes = [], groupNames = [], superProjects = [];
+    projectCodes.forEach(pc => {
+      (grants[pc].groups || []).forEach(gc => {
+        groupCodes.push(gc);
+        const g = GROUPS.find(x => x.groupCode === gc);
+        groupNames.push(g ? g.groupName : gc);
+      });
+      if (grants[pc].super) superProjects.push(pc);
+    });
+    return { userid, username, status, projectCodes, groupCodes, groupNames, superProjects,
+             isSuper: grants.__global__ ? true : false, grants, dept: "" };
+  }
+
+  const USERS = [
+    mkUser("EMP001", "张三", "Active", { __global__: { super: true }, portal: { groups:["portal_admin"], super:true }, rbac: { groups:["rbac_admin"], super:true }, workflow: { groups:["workflow_admin"] } }),
+    mkUser("EMP002", "李四", "Active", { workflow: { groups:["workflow_admin"], super:true }, message: { groups:["message_admin"] } }),
+    mkUser("EMP003", "王五", "Active", { message: { groups:["message_admin"] }, news: { groups:["news_admin"], super:true } }),
+    mkUser("EMP004", "赵六", "Disabled", { quality: { groups:["quality_admin"] } }),
+    mkUser("EMP005", "钱七", "Active", { portal: { groups:["portal_editor"] }, news: { groups:["news_reviewer"] } }),
+    mkUser("EMP006", "孙八", "Active", { quality: { groups:["quality_admin"], super:true }, rbac: { groups:["rbac_auditor"] } }),
+    mkUser("EMP007", "周九", "Active", { workflow: { groups:["workflow_ops"] } }),
+    mkUser("EMP008", "吴十", "Active", { portal: { groups:["portal_editor"] }, message: { groups:["operator"] }, quality: { groups:["quality_viewer"] } }),
+    mkUser("EMP009", "郑十一", "Disabled", { news: { groups:["news_admin"] } }),
+    mkUser("EMP010", "王十二", "Active", { rbac: { groups:["rbac_admin"], super:true } }),
+    mkUser("EMP011", "冯十三", "Active", { message: { groups:["operator"] } }),
+    mkUser("EMP012", "陈十四", "Active", { portal: { groups:["portal_admin"], super:true }, quality: { groups:["quality_viewer"] } }),
+    mkUser("EMP013", "褚十五", "Active", { workflow: { groups:["workflow_ops"] }, news: { groups:["news_reviewer"] } }),
+    mkUser("EMP014", "卫十六", "Active", { quality: { groups:["quality_admin"] } }),
+  ];
+
+  // ---- /api/global/menu/list & /api/rule/tree ----
+  // node fields: ruleCode, permissionCode, title, type, status, icon, weigh, menuType, path, children
+  const RULE_TREE = {
+    portal: [
+      { ruleCode:"portal.home", permissionCode:"menu:portal.home", title:"门户首页", type:"Menu", status:"Active", icon:"home", weigh:90, path:"/portal/home", children:[
+        { ruleCode:"portal.publish", permissionCode:"button:portal.publish", title:"发布", type:"Button", status:"Active", weigh:10 },
+      ]},
+      { ruleCode:"portal.layout", permissionCode:"menu:portal.layout", title:"版面管理", type:"Menu", status:"Active", icon:"layout", weigh:80, path:"/portal/layout", children:[] },
+      { ruleCode:"portal.user", permissionCode:"menu:portal.user", title:"门户用户", type:"Menu", status:"Active", icon:"user", weigh:70, path:"/portal/user", children:[
+        { ruleCode:"portal.user.edit", permissionCode:"button:portal.user.edit", title:"编辑用户", type:"Button", status:"Active", weigh:10 },
+      ]},
+    ],
+    workflow: [
+      { ruleCode:"workflow", permissionCode:"menu:workflow", title:"流程管理", type:"MenuDir", status:"Active", icon:"folder", weigh:100, children:[
+        { ruleCode:"workflow.design", permissionCode:"menu:workflow.design", title:"流程设计", type:"Menu", status:"Active", icon:"edit", weigh:90, path:"/workflow/design", children:[
+          { ruleCode:"workflow.deploy", permissionCode:"button:workflow.deploy", title:"部署", type:"Button", status:"Active", weigh:10 },
+        ]},
+        { ruleCode:"workflow.instance", permissionCode:"menu:workflow.instance", title:"流程实例", type:"Menu", status:"Active", icon:"list", weigh:80, path:"/workflow/instance", children:[
+          { ruleCode:"workflow.retry", permissionCode:"button:workflow.retry", title:"重试", type:"Button", status:"Active", weigh:10 },
+        ]},
+        { ruleCode:"workflow.form", permissionCode:"menu:workflow.form", title:"表单管理", type:"Menu", status:"Disabled", icon:"form", weigh:70, path:"/workflow/form", children:[] },
+      ]},
+    ],
+    rbac: [
+      { ruleCode:"system", permissionCode:"menu:system", title:"系统管理", type:"MenuDir", status:"Active", icon:"cog", weigh:100, children:[
+        { ruleCode:"system.user", permissionCode:"menu:system.user", title:"用户管理", type:"Menu", status:"Active", icon:"user", weigh:90, path:"/system/user", children:[
+          { ruleCode:"admin.edit", permissionCode:"button:admin.edit", title:"编辑管理员", type:"Button", status:"Active", weigh:20 },
+        ]},
+        { ruleCode:"system.group", permissionCode:"menu:system.group", title:"权限组", type:"Menu", status:"Active", icon:"group", weigh:80, path:"/system/group", children:[] },
+        { ruleCode:"system.rule", permissionCode:"menu:system.rule", title:"菜单规则", type:"Menu", status:"Active", icon:"menu", weigh:70, path:"/system/rule", children:[] },
+      ]},
+      { ruleCode:"search", permissionCode:"menu:search", title:"查询中心", type:"MenuDir", status:"Active", icon:"search", weigh:90, children:[
+        { ruleCode:"search.audit", permissionCode:"menu:search.audit", title:"审计日志", type:"Menu", status:"Active", icon:"shield", weigh:90, path:"/search/audit", children:[] },
+        { ruleCode:"search.permission", permissionCode:"menu:search.permission", title:"权限视图", type:"Menu", status:"Active", icon:"key", weigh:80, path:"/search/permission", children:[] },
+      ]},
+    ],
+    message: [
+      { ruleCode:"message.template", permissionCode:"menu:message.template", title:"消息模板", type:"Menu", status:"Active", icon:"mail", weigh:90, path:"/message/template", children:[
+        { ruleCode:"message.send", permissionCode:"button:message.send", title:"发送", type:"Button", status:"Active", weigh:10 },
+      ]},
+      { ruleCode:"message.channel", permissionCode:"menu:message.channel", title:"渠道配置", type:"Menu", status:"Active", icon:"radio", weigh:80, path:"/message/channel", children:[] },
+    ],
+    news: [
+      { ruleCode:"news.article", permissionCode:"menu:news.article", title:"资讯文章", type:"Menu", status:"Active", icon:"doc", weigh:90, path:"/news/article", children:[
+        { ruleCode:"news.publish", permissionCode:"button:news.publish", title:"发布", type:"Button", status:"Active", weigh:10 },
+        { ruleCode:"news.review", permissionCode:"button:news.review", title:"审核", type:"Button", status:"Active", weigh:9 },
+      ]},
+      { ruleCode:"news.category", permissionCode:"menu:news.category", title:"栏目管理", type:"Menu", status:"Active", icon:"layers", weigh:80, path:"/news/category", children:[] },
+    ],
+    quality: [
+      { ruleCode:"quality.audit", permissionCode:"menu:quality.audit", title:"质量审查", type:"Menu", status:"Active", icon:"check", weigh:90, path:"/quality/audit", children:[
+        { ruleCode:"quality.export", permissionCode:"button:quality.export", title:"导出", type:"Button", status:"Active", weigh:10 },
+      ]},
+      { ruleCode:"quality.report", permissionCode:"menu:quality.report", title:"质量报表", type:"Menu", status:"Active", icon:"chart", weigh:80, path:"/quality/report", children:[] },
+    ],
+  };
+
+  // ---- /api/search/audit-logs -> list items ----
+  // fields: auditId, userid, project, permissionCode, result, reason, createdAt, httpMethod, route
+  const RESULTS = ["Allow","Allow","Allow","Allow","Deny","Allow","Allow","Deny","Error","Allow"];
+  const ROUTES = [
+    ["GET","/api/admin/list","menu:system.user","read"],
+    ["POST","/api/group/{groupCode}/members","button:admin.edit","create"],
+    ["PUT","/api/project-grant/{userid}/super","menu:system.user","update"],
+    ["DELETE","/api/rule/{ruleCode}","menu:system.rule","delete"],
+    ["GET","/api/search/audit-logs","menu:search.audit","read"],
+    ["POST","/api/global/user/{userid}/project-grants","rbac.global.grant","create"],
+    ["GET","/api/global/menu/list","rbac.global.menu","read"],
+    ["PUT","/api/rule/{ruleCode}/status","menu:system.rule","update"],
+  ];
+  const AUDIT = [];
+  const now = new Date("2026-06-14T11:20:00+08:00").getTime();
+  for (let i = 0; i < 32; i++) {
+    const u = USERS[i % USERS.length];
+    const r = ROUTES[i % ROUTES.length];
+    const result = RESULTS[i % RESULTS.length];
+    const proj = u.projectCodes[0] || "rbac";
+    AUDIT.push({
+      auditId: "aud_" + (10240 - i),
+      userid: u.userid, username: u.username,
+      project: proj,
+      httpMethod: r[0], route: r[1],
+      permissionCode: r[2], action: r[3],
+      result,
+      reason: result === "Allow" ? "命中权限码授权" : result === "Deny" ? "权限码未授权" : "鉴权管道异常",
+      createdAt: new Date(now - i * 1000 * 60 * 7 - (i%5)*60000).toISOString(),
+    });
+  }
+
+  // ---- /api/api-map/records -> list items ----
+  const API_MAP = [
+    { id:"3fa85f64-0001", httpMethod:"GET",    routePattern:"/api/admin/list",                       permissionCode:"menu:system.user",      action:"read",   status:"Active" },
+    { id:"3fa85f64-0002", httpMethod:"POST",   routePattern:"/api/admin",                            permissionCode:"button:admin.edit",     action:"create", status:"Active" },
+    { id:"3fa85f64-0003", httpMethod:"PUT",    routePattern:"/api/admin/{userid}",                   permissionCode:"button:admin.edit",     action:"update", status:"Active" },
+    { id:"3fa85f64-0004", httpMethod:"DELETE", routePattern:"/api/admin/{userid}",                   permissionCode:"button:admin.edit",     action:"delete", status:"Active" },
+    { id:"3fa85f64-0005", httpMethod:"GET",    routePattern:"/api/group/list",                       permissionCode:"menu:system.group",     action:"read",   status:"Active" },
+    { id:"3fa85f64-0006", httpMethod:"POST",   routePattern:"/api/group/{groupCode}/members",        permissionCode:"menu:system.group",     action:"create", status:"Active" },
+    { id:"3fa85f64-0007", httpMethod:"PUT",    routePattern:"/api/project-grant/{userid}/super",     permissionCode:"menu:system.user",      action:"update", status:"Active" },
+    { id:"3fa85f64-0008", httpMethod:"GET",    routePattern:"/api/rule/tree",                        permissionCode:"menu:system.rule",      action:"read",   status:"Active" },
+    { id:"3fa85f64-0009", httpMethod:"POST",   routePattern:"/api/rule",                             permissionCode:"menu:system.rule",      action:"create", status:"Active" },
+    { id:"3fa85f64-0010", httpMethod:"GET",    routePattern:"/api/global/user/list",                 permissionCode:"rbac.global.user",      action:"read",   status:"Active" },
+    { id:"3fa85f64-0011", httpMethod:"POST",   routePattern:"/api/global/user/{userid}/project-grants", permissionCode:"rbac.global.grant",  action:"create", status:"Active" },
+    { id:"3fa85f64-0012", httpMethod:"GET",    routePattern:"/api/search/audit-logs",                permissionCode:"menu:search.audit",     action:"read",   status:"Disabled" },
+  ];
+
+  // ---- /api/api-map/list (permission-view) -> list items ----
+  // fields: permissionCode, action, resourceType, title
+  const PERMISSION_VIEW = [
+    { permissionCode:"menu:system.user",  action:"read",   resourceType:"Menu",   title:"用户管理" },
+    { permissionCode:"button:admin.edit", action:"update", resourceType:"Button", title:"编辑管理员" },
+    { permissionCode:"menu:system.group", action:"read",   resourceType:"Menu",   title:"权限组" },
+    { permissionCode:"menu:system.rule",  action:"read",   resourceType:"Menu",   title:"菜单规则" },
+    { permissionCode:"rbac.global.user",  action:"read",   resourceType:"Api",    title:"全局用户查询" },
+    { permissionCode:"rbac.global.grant", action:"create", resourceType:"Api",    title:"全局授权" },
+    { permissionCode:"menu:search.audit", action:"read",   resourceType:"Menu",   title:"审计日志" },
+  ];
+
+  const STATS = { systems: 6, users: 2356, groups: 158, menus: 1248 };
+
+  window.PC_DATA = {
+    PROJECTS, USERS, GROUPS, RULE_TREE, AUDIT, API_MAP, PERMISSION_VIEW, STATS,
+    helpers: { pname }
+  };
+})();
+
+</script>
+
+<script type="text/babel" data-presets="react">
+/* ============================================================
+   Shared UI primitives — Apple language, exported to window.
+   ============================================================ */
+const { useState, useEffect, useRef, useMemo } = React;
+
+/* ---------- Icons (simple line set) ---------- */
+const ICONS = {
+  grid:   "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
+  users:  "M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM22 19v-1a4 4 0 0 0-3-3.87M16 4.13A4 4 0 0 1 16 12",
+  key:    "M14 8a4 4 0 1 1-4 4M14 8l7-7m-3 3 2 2m-2 1 2 2",
+  shield: "M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z",
+  menu:   "M4 6h16M4 12h16M4 18h16",
+  search: "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3",
+  cog:    "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9z",
+  plus:   "M12 5v14M5 12h14",
+  check:  "M20 6L9 17l-5-5",
+  x:      "M18 6L6 18M6 6l12 12",
+  chevR:  "M9 6l6 6-6 6",
+  chevD:  "M6 9l6 6 6-6",
+  star:   "M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.6 9.1l5.8-.8z",
+  layers: "M12 2l9 5-9 5-9-5zM3 12l9 5 9-5M3 17l9 5 9-5",
+  doc:    "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6",
+  clock:  "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2",
+  link:   "M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1",
+  trash:  "M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6",
+  edit:   "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z",
+  arrowR: "M5 12h14M13 6l6 6-6 6",
+  power:  "M12 3v9M6.6 6.6a8 8 0 1 0 10.8 0",
+  building:"M3 21h18M5 21V7l8-4v18M19 21V11l-6-3M9 9h.01M9 13h.01M9 17h.01",
+  flow:   "M5 5h5v5H5zM14 14h5v5h-5zM10 7h6a2 2 0 0 1 2 2v5",
+  spark:  "M13 2L4.5 13H11l-1 9 8.5-11H12z",
+  list:   "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
+  filter: "M3 4h18l-7 8v6l-4 2v-8z",
+  dl:     "M12 3v12m0 0l4-4m-4 4l-4-4M4 21h16",
+};
+
+function Icon({ name, size = 18, stroke = 1.7, className = "", style = {}, fill = false }) {
+  const d = ICONS[name] || "";
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? "currentColor" : "none"}
+         stroke={fill ? "none" : "currentColor"} strokeWidth={stroke} strokeLinecap="round"
+         strokeLinejoin="round" className={className} style={{ flexShrink: 0, ...style }}>
+      <path d={d} />
+    </svg>
+  );
+}
+
+/* ---------- Project glyph (initial tile) ---------- */
+const PROJ_TINT = {
+  portal:  ["#e9f0fb", "#0066cc"],
+  workflow:["#eef0f4", "#3a3a3c"],
+  message: ["#eaf3ee", "#1a7f47"],
+  news:    ["#f6efdc", "#9a6a00"],
+  quality: ["#efeaf7", "#6b4ea8"],
+  rbac:    ["#fbeae9", "#b3261e"],
+};
+function ProjectGlyph({ code, name, size = 36, radius = 9 }) {
+  const [bg, fg] = PROJ_TINT[code] || ["#eee", "#555"];
+  const letter = (name || code || "?").trim()[0].toUpperCase();
+  return (
+    <div style={{ width: size, height: size, borderRadius: radius, background: bg, color: fg,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontFamily: "var(--font-display)", fontWeight: 600, fontSize: size * 0.42, flexShrink: 0,
+      letterSpacing: "-0.02em" }}>{letter}</div>
+  );
+}
+
+/* ---------- Avatar ---------- */
+function Avatar({ name, size = 32, dim = false }) {
+  const letter = (name || "?").trim()[0];
+  const hue = ((name || "").charCodeAt(0) * 47) % 360;
+  return (
+    <div style={{ width: size, height: size, borderRadius: "50%", flexShrink: 0,
+      background: dim ? "#ededf0" : `oklch(0.92 0.04 ${hue})`,
+      color: dim ? "#9a9aa0" : `oklch(0.42 0.09 ${hue})`,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontWeight: 600, fontSize: size * 0.42, fontFamily: "var(--font-display)" }}>{letter}</div>
+  );
+}
+
+/* ---------- Status badge ---------- */
+function Badge({ tone = "neutral", children, dot = false, soft = true, size = "md" }) {
+  const tones = {
+    ok:     ["var(--ok)", "var(--ok-wash)"],
+    warn:   ["var(--warn)", "var(--warn-wash)"],
+    deny:   ["var(--deny)", "var(--deny-wash)"],
+    blue:   ["var(--blue)", "var(--blue-wash)"],
+    super:  ["var(--super)", "var(--super-wash)"],
+    neutral:["var(--ink-60)", "#f0f0f2"],
+  };
+  const [fg, bg] = tones[tone] || tones.neutral;
+  const pad = size === "sm" ? "2px 8px" : "3px 10px";
+  const fs = size === "sm" ? 11 : 12;
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: pad,
+      borderRadius: 9999, background: soft ? bg : "transparent", color: fg,
+      fontSize: fs, fontWeight: 600, letterSpacing: "-0.01em", whiteSpace: "nowrap", lineHeight: 1.3 }}>
+      {dot && <span style={{ width: 6, height: 6, borderRadius: "50%", background: fg }} />}
+      {children}
+    </span>
+  );
+}
+
+/* ---------- Segmented control ---------- */
+function Segmented({ options, value, onChange, size = "md" }) {
+  const pad = size === "sm" ? "5px 12px" : "7px 16px";
+  const fs = size === "sm" ? 13 : 14;
+  return (
+    <div style={{ display: "inline-flex", background: "#ececef", borderRadius: 10, padding: 3, gap: 2 }}>
+      {options.map(opt => {
+        const val = typeof opt === "string" ? opt : opt.value;
+        const label = typeof opt === "string" ? opt : opt.label;
+        const active = val === value;
+        return (
+          <button key={val} className="btn" onClick={() => onChange(val)}
+            style={{ padding: pad, fontSize: fs, borderRadius: 8, fontWeight: active ? 600 : 400,
+              background: active ? "#fff" : "transparent", color: active ? "var(--ink)" : "var(--ink-60)",
+              boxShadow: active ? "0 1px 3px rgba(0,0,0,0.12)" : "none", transition: "all .15s ease" }}>
+            {label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ---------- Toggle switch ---------- */
+function Toggle({ on, onChange, disabled, tone = "blue" }) {
+  const col = tone === "super" ? "var(--super)" : "var(--blue)";
+  return (
+    <button className="btn" disabled={disabled} onClick={() => !disabled && onChange(!on)}
+      style={{ width: 42, height: 25, borderRadius: 9999, padding: 0, position: "relative",
+        background: on ? col : "#d4d4d8", transition: "background .2s ease", flexShrink: 0,
+        opacity: disabled ? 0.5 : 1 }}>
+      <span style={{ position: "absolute", top: 2.5, left: on ? 19.5 : 2.5, width: 20, height: 20,
+        borderRadius: "50%", background: "#fff", transition: "left .2s cubic-bezier(.3,.7,.3,1)",
+        boxShadow: "0 1px 2px rgba(0,0,0,0.3)" }} />
+    </button>
+  );
+}
+
+/* ---------- Checkbox ---------- */
+function Check({ on, onChange, disabled }) {
+  return (
+    <button className="btn" disabled={disabled} onClick={() => !disabled && onChange(!on)}
+      style={{ width: 20, height: 20, borderRadius: 6, padding: 0, flexShrink: 0,
+        border: on ? "none" : "1.5px solid #c4c4ca", background: on ? "var(--blue)" : "#fff",
+        color: "#fff", opacity: disabled ? 0.4 : 1 }}>
+      {on && <Icon name="check" size={13} stroke={2.6} />}
+    </button>
+  );
+}
+
+/* ---------- Search input ---------- */
+function SearchInput({ value, onChange, placeholder = "搜索", width = 260 }) {
+  return (
+    <div style={{ position: "relative", width }}>
+      <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "var(--ink-48)", pointerEvents: "none" }}>
+        <Icon name="search" size={15} />
+      </span>
+      <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+        style={{ width: "100%", height: 38, borderRadius: 9999, border: "1px solid var(--hairline)",
+          background: "#fff", padding: "0 16px 0 36px", fontSize: 14, color: "var(--ink)", outline: "none" }} />
+    </div>
+  );
+}
+
+/* ---------- Plain field input ---------- */
+function Field({ label, value, onChange, placeholder, hint, mono, as = "input", children }) {
+  return (
+    <label style={{ display: "block" }}>
+      {label && <div className="t-cap-strong" style={{ marginBottom: 7 }}>{label}</div>}
+      {as === "select" ? (
+        <select value={value} onChange={e => onChange(e.target.value)}
+          style={{ width: "100%", height: 40, borderRadius: 10, border: "1px solid var(--hairline)",
+            background: "#fff", padding: "0 12px", fontSize: 14, color: "var(--ink)", outline: "none" }}>
+          {children}
+        </select>
+      ) : (
+        <input value={value} onChange={e => onChange && onChange(e.target.value)} placeholder={placeholder}
+          style={{ width: "100%", height: 40, borderRadius: 10, border: "1px solid var(--hairline)",
+            background: "#fff", padding: "0 13px", fontSize: 14, color: "var(--ink)", outline: "none",
+            fontFamily: mono ? "var(--font-text)" : "inherit" }} />
+      )}
+      {hint && <div className="t-cap" style={{ marginTop: 6 }}>{hint}</div>}
+    </label>
+  );
+}
+
+/* ---------- API endpoint tag ---------- */
+const METHOD_TONE = { GET:"#1a7f47", POST:"#0066cc", PUT:"#9a6a00", DELETE:"#b3261e", PATCH:"#6b4ea8" };
+function ApiTag({ method, path, mini = false }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#f6f6f8",
+      border: "1px solid var(--divider)", borderRadius: 7, padding: mini ? "2px 8px 2px 6px" : "4px 10px 4px 7px",
+      fontFamily: "var(--font-text)", maxWidth: "100%" }}>
+      <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.03em", color: METHOD_TONE[method] || "#555",
+        fontFamily: "SF Mono, ui-monospace, monospace" }}>{method}</span>
+      <span className="t-mono" style={{ color: "var(--ink-80)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: mini ? 11.5 : 12.5 }}>{path}</span>
+    </span>
+  );
+}
+
+/* ---------- "Powered by" API source strip (page-level) ---------- */
+function ApiSource({ endpoints, note }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ background: "var(--blue-wash)", border: "1px solid var(--blue-wash-strong)",
+      borderRadius: 12, padding: "11px 14px" }}>
+      <button className="btn" onClick={() => setOpen(o => !o)}
+        style={{ width: "100%", justifyContent: "space-between", padding: 0, background: "transparent" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--blue)" }}>
+          <Icon name="link" size={15} />
+          <span className="t-cap-strong" style={{ color: "var(--blue)" }}>本页数据来源 · {endpoints.length} 个接口</span>
+        </span>
+        <Icon name="chevD" size={16} style={{ color: "var(--blue)", transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
+      </button>
+      {open && (
+        <div className="anim-fade" style={{ marginTop: 11, display: "flex", flexDirection: "column", gap: 7 }}>
+          {endpoints.map((e, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <ApiTag method={e.m} path={e.p} />
+              <span className="t-cap">{e.d}</span>
+            </div>
+          ))}
+          {note && <div className="t-cap" style={{ marginTop: 4, color: "var(--ink-60)" }}>{note}</div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Drawer (slide-over) ---------- */
+function Drawer({ open, onClose, children, width = 460 }) {
+  useEffect(() => {
+    const h = (e) => e.key === "Escape" && onClose();
+    if (open) window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 60 }}>
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.28)", animation: "overlayIn .2s ease both" }} />
+      <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width, maxWidth: "94vw",
+        background: "var(--canvas)", boxShadow: "var(--float-shadow)", animation: "slideInRight .32s cubic-bezier(.2,.7,.2,1) both",
+        display: "flex", flexDirection: "column" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Modal ---------- */
+function Modal({ open, onClose, children, width = 480 }) {
+  useEffect(() => {
+    const h = (e) => e.key === "Escape" && onClose && onClose();
+    if (open) window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 70, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.32)", animation: "overlayIn .2s ease both" }} />
+      <div style={{ position: "relative", width, maxWidth: "100%", maxHeight: "90vh", overfl:"hidden",
+        background: "var(--canvas)", borderRadius: 20, boxShadow: "var(--float-shadow)",
+        animation: "scaleIn .26s cubic-bezier(.2,.7,.2,1) both", display: "flex", flexDirection: "column" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Toast ---------- */
+function useToast() {
+  const [toasts, setToasts] = useState([]);
+  const push = (msg, tone = "ok") => {
+    const id = Math.random().toString(36).slice(2);
+    setToasts(t => [...t, { id, msg, tone }]);
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3200);
+  };
+  const node = (
+    <div style={{ position: "fixed", bottom: 26, left: "50%", transform: "translateX(-50%)", zIndex: 90,
+      display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
+      {toasts.map(t => (
+        <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10, background: "var(--ink)",
+          color: "#fff", padding: "11px 18px", borderRadius: 12, boxShadow: "var(--float-shadow)",
+          animation: "fadeUp .3s ease both", fontSize: 14, fontWeight: 500 }}>
+          <span style={{ color: t.tone === "ok" ? "#5fd08a" : t.tone === "deny" ? "#ff8a82" : "#ffd27a", display: "flex" }}>
+            <Icon name={t.tone === "deny" ? "x" : "check"} size={16} stroke={2.4} />
+          </span>
+          {t.msg}
+        </div>
+      ))}
+    </div>
+  );
+  return { push, node };
+}
+
+/* ---------- Stat number formatting ---------- */
+function fmt(n) { return n.toLocaleString("en-US"); }
+function timeAgo(iso) {
+  const diff = (new Date("2026-06-14T11:20:00+08:00") - new Date(iso)) / 60000;
+  if (diff < 1) return "刚刚";
+  if (diff < 60) return Math.floor(diff) + " 分钟前";
+  if (diff < 1440) return Math.floor(diff / 60) + " 小时前";
+  return Math.floor(diff / 1440) + " 天前";
+}
+function fmtTime(iso) {
+  const d = new Date(iso);
+  const p = (x) => String(x).padStart(2, "0");
+  return `${d.getMonth()+1}月${d.getDate()}日 ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+Object.assign(window, {
+  Icon, ProjectGlyph, Avatar, Badge, Segmented, Toggle, Check, SearchInput, Field,
+  ApiTag, ApiSource, Drawer, Modal, useToast, fmt, timeAgo, fmtTime, PROJ_TINT, METHOD_TONE,
+});
+
+</script>
+
+<script type="text/babel" data-presets="react">
+/* ============================================================
+   Dashboard — three switchable directions (compare → commit).
+   ============================================================ */
+const { useState: useStateD } = React;
+
+function StatTile({ icon, label, value, sub, accent }) {
+  return (
+    <div className="card" style={{ padding: "20px 22px", display: "flex", flexDirection: "column", gap: 14, flex: 1, minWidth: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span className="t-cap-strong">{label}</span>
+        <span style={{ color: accent || "var(--ink-48)", display: "flex" }}><Icon name={icon} size={18} /></span>
+      </div>
+      <div>
+        <div className="t-display" style={{ fontSize: 38, lineHeight: 1 }}>{value}</div>
+        {sub && <div className="t-cap" style={{ marginTop: 8 }}>{sub}</div>}
+      </div>
+    </div>
+  );
+}
+
+function ActivityRow({ a, compact }) {
+  const tone = a.result === "Allow" ? "ok" : a.result === "Deny" ? "deny" : "warn";
+  const label = a.result === "Allow" ? "通过" : a.result === "Deny" ? "拒绝" : "异常";
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: compact ? "9px 0" : "12px 0" }}>
+      <Avatar name={a.username} size={30} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <span className="t-body-strong" style={{ fontSize: 13.5 }}>{a.username}</span>
+          <span className="t-cap" style={{ fontSize: 12 }}>{a.userid}</span>
+        </div>
+        <div className="t-cap" style={{ marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <span style={{ fontWeight: 600, color: "var(--ink-60)" }}>{a.httpMethod}</span> {a.route}
+        </div>
+      </div>
+      <div style={{ textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+        <Badge tone={tone} dot size="sm">{label}</Badge>
+        <span className="t-cap" style={{ fontSize: 11.5 }}>{timeAgo(a.createdAt)}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Direction 1: Metrics view ---------------- */
+function DashMetrics({ data, go, scenario }) {
+  const { stats: STATS, projects: PROJECTS, audit: AUDIT } = data;
+  const denies = AUDIT.filter(a => a.result !== "Allow").length;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+      <div style={{ display: "flex", gap: 16 }}>
+        <StatTile icon="building" label="接入系统" value={STATS.systems} sub="全部业务 project" accent="var(--blue)" />
+        <StatTile icon="users" label="管理员账号" value={fmt(STATS.users)} sub="跨 project 去重" accent="var(--ok)" />
+        <StatTile icon="key" label="权限组" value={STATS.groups} sub="全部 project 合计" accent="var(--super)" />
+        <StatTile icon="menu" label="菜单与路由" value={fmt(STATS.menus)} sub="含按钮级规则" accent="var(--warn)" />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1.55fr 1fr", gap: 16, alignItems: "start" }}>
+        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 22px 14px" }}>
+            <span className="t-section">系统总览</span>
+            <button className="btn btn-text" onClick={() => go("authorization")}>授权管理 <Icon name="arrowR" size={14} /></button>
+          </div>
+          <hr className="hr" />
+          <div>
+            {PROJECTS.map((p, i) => (
+              <div key={p.code} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 22px",
+                borderTop: i ? "1px solid var(--divider)" : "none" }}>
+                <ProjectGlyph code={p.code} name={p.name} size={38} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="t-body-strong">{p.name}</div>
+                  <div className="t-cap" style={{ marginTop: 1 }}>{p.cn} · <span className="t-mono">{p.code}</span></div>
+                </div>
+                <div style={{ display: "flex", gap: 26, textAlign: "right" }}>
+                  <div><div className="t-body-strong">{p.users}</div><div className="t-cap">用户</div></div>
+                  <div><div className="t-body-strong" style={{ color: "var(--super)" }}>{p.supers}</div><div className="t-cap">超管</div></div>
+                  <div><div className="t-body-strong">{p.groups}</div><div className="t-cap">权限组</div></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="card" style={{ padding: "18px 22px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+            <span className="t-section">最近鉴权</span>
+            <button className="btn btn-text" onClick={() => go("audit")}>全部</button>
+          </div>
+          <div className="t-cap" style={{ marginBottom: 6 }}>来自审计日志的运行时鉴权结果</div>
+          <hr className="hr" />
+          <div style={{ marginTop: 4 }}>
+            {AUDIT.slice(0, 7).map(a => <div key={a.auditId} style={{ borderTop: "1px solid var(--divider)" }}><ActivityRow a={a} compact /></div>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Direction 2: Operations console ---------------- */
+const SCENARIOS = [
+  { key: "grant",    icon: "key",    title: "授权用户到多个系统", desc: "选择用户，一次性授予多个 project 访问", tone: "var(--blue)", bg: "var(--blue-wash)" },
+  { key: "super",    icon: "star",   title: "提升 / 降级超管",     desc: "管理用户在 project 内的 super 标记", tone: "var(--super)", bg: "var(--super-wash)" },
+  { key: "members",  icon: "users",  title: "分配用户到权限组",     desc: "在指定 project 内增删权限组成员", tone: "var(--ok)", bg: "var(--ok-wash)" },
+  { key: "review",   icon: "shield", title: "审查近期鉴权",         desc: "按结果筛选 Allow / Deny / Error", tone: "var(--warn)", bg: "var(--warn-wash)" },
+  { key: "crossview",icon: "grid",   title: "查看跨系统权限",       desc: "聚合用户在所有 project 的授权", tone: "var(--ink-80)", bg: "#f0f0f2" },
+  { key: "menus",    icon: "menu",   title: "管理菜单与 API 权限",  desc: "维护规则树与 API 映射", tone: "var(--deny)", bg: "var(--deny-wash)" },
+];
+function DashConsole({ data, go, scenario }) {
+  const { audit: AUDIT } = data;
+  const attention = AUDIT.filter(a => a.result !== "Allow").slice(0, 4);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+      <div>
+        <div className="t-cap-strong" style={{ marginBottom: 14 }}>快捷操作</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+          {SCENARIOS.map(s => (
+            <button key={s.key} className="btn" onClick={() => scenario(s.key)}
+              style={{ textAlign: "left", padding: 20, borderRadius: 18, border: "1px solid var(--hairline)",
+                background: "#fff", flexDirection: "column", alignItems: "stretch", gap: 14, transition: "border-color .15s, transform .08s" }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = "#cdcdd2"}
+              onMouseLeave={e => e.currentTarget.style.borderColor = "var(--hairline)"}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ width: 40, height: 40, borderRadius: 11, background: s.bg, color: s.tone,
+                  display: "flex", alignItems: "center", justifyContent: "center" }}><Icon name={s.icon} size={20} /></span>
+                <Icon name="arrowR" size={17} style={{ color: "var(--ink-48)" }} />
+              </div>
+              <div>
+                <div className="t-body-strong" style={{ fontSize: 15.5 }}>{s.title}</div>
+                <div className="t-cap" style={{ marginTop: 4, lineHeight: 1.4 }}>{s.desc}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 16, alignItems: "start" }}>
+        <div className="card" style={{ padding: "18px 22px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+            <Icon name="shield" size={17} style={{ color: "var(--deny)" }} />
+            <span className="t-section">需要关注</span>
+          </div>
+          <div className="t-cap" style={{ marginBottom: 10 }}>近期被拒绝或异常的鉴权请求</div>
+          <hr className="hr" />
+          <div style={{ marginTop: 4 }}>
+            {attention.map(a => (
+              <div key={a.auditId} style={{ borderTop: "1px solid var(--divider)", padding: "12px 0", display: "flex", gap: 11, alignItems: "center" }}>
+                <span style={{ width: 32, height: 32, borderRadius: 9, background: a.result === "Deny" ? "var(--deny-wash)" : "var(--warn-wash)",
+                  color: a.result === "Deny" ? "var(--deny)" : "var(--warn)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Icon name={a.result === "Deny" ? "x" : "spark"} size={15} stroke={2.2} />
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="t-body-strong" style={{ fontSize: 13.5 }}>{a.username} · <span className="t-mono">{a.permissionCode}</span></div>
+                  <div className="t-cap" style={{ marginTop: 1 }}>{a.reason} · {data.helpers.pname(a.project)}</div>
+                </div>
+                <span className="t-cap" style={{ fontSize: 11.5 }}>{timeAgo(a.createdAt)}</span>
+              </div>
+            ))}
+          </div>
+          <button className="btn btn-neutral btn-sm" style={{ marginTop: 14, width: "100%" }} onClick={() => go("audit")}>打开审计中心</button>
+        </div>
+        <div className="card" style={{ padding: "18px 22px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+            <span className="t-section">实时鉴权流</span>
+            <Badge tone="ok" dot size="sm">实时</Badge>
+          </div>
+          <div className="t-cap" style={{ marginBottom: 6 }}>GET /api/search/audit-logs</div>
+          <hr className="hr" />
+          <div style={{ marginTop: 4 }}>
+            {AUDIT.slice(0, 8).map(a => <div key={a.auditId} style={{ borderTop: "1px solid var(--divider)" }}><ActivityRow a={a} compact /></div>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Direction 3: Project gallery (recommended) ---------------- */
+function GalleryTile({ p, dark, go, scenario }) {
+  const [bg] = PROJ_TINT[p.code] || ["#eee"];
+  return (
+    <div style={{ background: dark ? "var(--tile-dark)" : bg, borderRadius: 22, padding: "30px 32px",
+      display: "flex", flexDirection: "column", gap: 22, minHeight: 220, position: "relative", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div>
+          <div className="t-cap-strong" style={{ color: dark ? "#aaa" : "var(--ink-60)", marginBottom: 8 }}>
+            <span className="t-mono" style={{ fontSize: 12 }}>{p.code}</span>
+          </div>
+          <div className="t-title" style={{ color: dark ? "#fff" : "var(--ink)", fontSize: 27 }}>{p.name}</div>
+          <div className="t-body" style={{ color: dark ? "#bbb" : "var(--ink-60)", marginTop: 3 }}>{p.cn}</div>
+        </div>
+        <ProjectGlyph code={p.code} name={p.name} size={44} radius={12} />
+      </div>
+      <div style={{ display: "flex", gap: 30, marginTop: "auto" }}>
+        <div><div className="t-display" style={{ fontSize: 26, color: dark ? "#fff" : "var(--ink)" }}>{p.users}</div><div className="t-cap" style={{ color: dark ? "#999" : "var(--ink-48)" }}>用户</div></div>
+        <div><div className="t-display" style={{ fontSize: 26, color: "var(--super)" }}>{p.supers}</div><div className="t-cap" style={{ color: dark ? "#999" : "var(--ink-48)" }}>超管</div></div>
+        <div><div className="t-display" style={{ fontSize: 26, color: dark ? "#fff" : "var(--ink)" }}>{p.groups}</div><div className="t-cap" style={{ color: dark ? "#999" : "var(--ink-48)" }}>权限组</div></div>
+        <div style={{ marginLeft: "auto", alignSelf: "flex-end" }}>
+          <button className="btn" onClick={() => scenario("grant", p.code)}
+            style={{ background: dark ? "rgba(255,255,255,0.14)" : "#fff", color: dark ? "#fff" : "var(--blue)",
+              borderRadius: 9999, padding: "8px 16px", fontSize: 13, fontWeight: 500 }}>
+            授权 <Icon name="arrowR" size={14} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+function DashGallery({ data, go, scenario }) {
+  const { stats: STATS, projects: PROJECTS, audit: AUDIT } = data;
+  const ribbon = [
+    { label: "接入系统", value: STATS.systems },
+    { label: "管理员账号", value: fmt(STATS.users) },
+    { label: "权限组", value: STATS.groups },
+    { label: "菜单与路由", value: fmt(STATS.menus) },
+  ];
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+      <div className="card" style={{ display: "flex", padding: "20px 0" }}>
+        {ribbon.map((r, i) => (
+          <div key={r.label} style={{ flex: 1, padding: "0 26px", borderLeft: i ? "1px solid var(--divider)" : "none" }}>
+            <div className="t-display" style={{ fontSize: 32, lineHeight: 1 }}>{r.value}</div>
+            <div className="t-cap" style={{ marginTop: 7 }}>{r.label}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        {PROJECTS.map((p, i) => <GalleryTile key={p.code} p={p} dark={i % 3 === 1} go={go} scenario={scenario} />)}
+      </div>
+      <div className="card" style={{ padding: "18px 22px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+          <span className="t-section">近期活动</span>
+          <button className="btn btn-text" onClick={() => go("audit")}>审计中心 <Icon name="arrowR" size={14} /></button>
+        </div>
+        <hr className="hr" />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 40 }}>
+          {AUDIT.slice(0, 8).map(a => <div key={a.auditId} style={{ borderTop: "1px solid var(--divider)" }}><ActivityRow a={a} compact /></div>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Dashboard shell with direction switch ---------------- */
+function Dashboard({ data, go, scenario }) {
+  const [dir, setDir] = useStateD("gallery");
+  const dirs = [
+    { value: "gallery", label: "项目画廊" },
+    { value: "console", label: "操作控制台" },
+    { value: "metrics", label: "指标视图" },
+  ];
+  const today = "2026年6月14日 星期六";
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 16 }}>
+        <div>
+          <div className="t-cap-strong" style={{ color: "var(--blue)", marginBottom: 8 }}>{today}</div>
+          <div className="t-hero" style={{ fontSize: 40 }}>下午好，张三</div>
+          <div className="t-lead" style={{ fontSize: 19, marginTop: 6 }}>统一权限中心 · 全局视图（<span className="t-mono" style={{ fontSize: 15 }}>__global__</span>）</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
+          <div className="t-cap" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <Icon name="grid" size={13} /> 仪表盘方向
+          </div>
+          <Segmented options={dirs} value={dir} onChange={setDir} />
+        </div>
+      </div>
+      {dir === "gallery" && (
+        <div style={{ marginBottom: 18 }}>
+          <Badge tone="blue" size="sm">推荐方向</Badge>
+          <span className="t-cap" style={{ marginLeft: 10 }}>卡片优先、画廊式呈现 —— 最贴合 Apple 设计语言与“运营中心”定位。可在右上角切换对比其他方向。</span>
+        </div>
+      )}
+      <div className="anim-fade" key={dir}>
+        {dir === "gallery" && <DashGallery data={data} go={go} scenario={scenario} />}
+        {dir === "console" && <DashConsole data={data} go={go} scenario={scenario} />}
+        {dir === "metrics" && <DashMetrics data={data} go={go} scenario={scenario} />}
+      </div>
+      <div style={{ marginTop: 22 }}>
+        <ApiSource endpoints={[
+          { m: "GET", p: "/api/admin/index", d: "当前管理员信息与可见菜单" },
+          { m: "GET", p: "/api/global/project/list", d: "接入系统列表与计数" },
+          { m: "GET", p: "/api/global/user/list", d: "管理员总数（total）" },
+          { m: "GET", p: "/api/global/group/list", d: "权限组总数（total）" },
+          { m: "GET", p: "/api/global/menu/list", d: "菜单与路由总数（total）" },
+          { m: "GET", p: "/api/search/audit-logs", d: "近期鉴权活动与关注项" },
+        ]} note="每个 project 的细分计数通过对各 list 接口传入 project 参数聚合得到。单一汇总统计接口为建议的未来扩展。" />
+      </div>
+    </div>
+  );
+}
+
+window.Dashboard = Dashboard;
+window.SCENARIOS = SCENARIOS;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+/* ============================================================
+   User management — cross-project admin accounts.
+   APIs: GET /api/global/user/list, PUT /api/global/user/{userid}/status,
+         POST /api/global/user/{userid}/project-grants (+ per-project grant)
+   ============================================================ */
+const { useState: useSU, useEffect: useEffU } = React;
+
+function ProjectChips({ codes, projects, max = 3 }) {
+  const shown = codes.slice(0, max);
+  const rest = codes.length - shown.length;
+  return (
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+      {shown.map(c => {
+        const p = projects.find(x => x.code === c);
+        return <span key={c} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 9px 3px 6px",
+          background: "#f3f3f5", borderRadius: 7, fontSize: 12 }}>
+          <ProjectGlyph code={c} name={p ? p.name : c} size={16} radius={4} />
+          <span style={{ fontWeight: 500 }}>{p ? p.name.replace(" Center","") : c}</span>
+        </span>;
+      })}
+      {rest > 0 && <span className="t-cap" style={{ fontWeight: 600 }}>+{rest}</span>}
+      {codes.length === 0 && <span className="t-cap">—</span>}
+    </div>
+  );
+}
+
+function UserDetail({ user, ctx, onClose, onAuthorize }) {
+  const { store, actions } = ctx;
+  const u = store.users.find(x => x.userid === user.userid) || user;
+  const userAudit = store.audit.filter(a => a.userid === u.userid).slice(0, 5);
+  const [confirm, setConfirm] = useSU(null);
+
+  return (
+    <React.Fragment>
+      <div style={{ padding: "22px 24px 18px", borderBottom: "1px solid var(--divider)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+          <span className="t-cap-strong">用户详情</span>
+          <button className="btn" onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--parchment)" }}><Icon name="x" size={17} /></button>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <Avatar name={u.username} size={52} dim={u.status === "Disabled"} />
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <span className="t-title" style={{ fontSize: 22 }}>{u.username}</span>
+              {u.isSuper && <Badge tone="super" dot size="sm">全局超管</Badge>}
+            </div>
+            <div className="t-cap" style={{ marginTop: 2 }}><span className="t-mono">{u.userid}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
+        {/* status */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px",
+          background: "var(--parchment)", borderRadius: 12, marginBottom: 22 }}>
+          <div>
+            <div className="t-body-strong" style={{ fontSize: 14 }}>账号状态</div>
+            <div className="t-cap" style={{ marginTop: 2 }}>全局启用 / 禁用 · rbac_administrator 单次写入</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Badge tone={u.status === "Active" ? "ok" : "neutral"} dot>{u.status === "Active" ? "已启用" : "已禁用"}</Badge>
+            <Toggle on={u.status === "Active"} onChange={(v) => actions.setUserStatus(u.userid, v ? "Active" : "Disabled")} />
+          </div>
+        </div>
+
+        {/* project grants */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <span className="t-section">项目授权</span>
+          <button className="btn btn-text" onClick={() => onAuthorize(u)}><Icon name="plus" size={14} /> 新增授权</button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
+          {u.projectCodes.length === 0 && <div className="t-cap" style={{ padding: "8px 0" }}>暂无项目授权</div>}
+          {u.projectCodes.map(pc => {
+            const p = store.projects.find(x => x.code === pc);
+            const isSup = u.superProjects.includes(pc);
+            return (
+              <div key={pc} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", border: "1px solid var(--hairline)", borderRadius: 12 }}>
+                <ProjectGlyph code={pc} name={p ? p.name : pc} size={34} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="t-body-strong" style={{ fontSize: 14 }}>{p ? p.name : pc}</div>
+                  <div className="t-cap"><span className="t-mono">{pc}</span></div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                  <span className="t-cap" style={{ color: isSup ? "var(--super)" : "var(--ink-48)", fontWeight: isSup ? 600 : 400 }}>超管</span>
+                  <Toggle tone="super" on={isSup} onChange={(v) => setConfirm({ pc, p, val: v })} />
+                </div>
+                <button className="btn" title="撤销授权" onClick={() => actions.revokeGrant(u.userid, pc)}
+                  style={{ width: 30, height: 30, borderRadius: 8, color: "var(--deny)", background: "var(--deny-wash)" }}><Icon name="trash" size={15} /></button>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* groups */}
+        <div className="t-section" style={{ marginBottom: 12 }}>权限组</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
+          {u.groupNames.length === 0 && <div className="t-cap">未加入任何权限组</div>}
+          {u.groupNames.map((gn, i) => (
+            <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", background: "var(--blue-wash)", color: "var(--blue)", borderRadius: 9999, fontSize: 13, fontWeight: 500 }}>
+              <Icon name="shield" size={13} /> {gn}
+            </span>
+          ))}
+        </div>
+
+        {/* recent activity */}
+        <div className="t-section" style={{ marginBottom: 6 }}>近期鉴权</div>
+        <div className="t-cap" style={{ marginBottom: 8 }}>GET /api/search/audit-logs?userid={u.userid}</div>
+        <div>
+          {userAudit.map(a => {
+            const tone = a.result === "Allow" ? "ok" : a.result === "Deny" ? "deny" : "warn";
+            return (
+              <div key={a.auditId} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderTop: "1px solid var(--divider)" }}>
+                <Badge tone={tone} dot size="sm">{a.result === "Allow" ? "通过" : a.result === "Deny" ? "拒绝" : "异常"}</Badge>
+                <span className="t-mono" style={{ flex: 1, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.permissionCode}</span>
+                <span className="t-cap" style={{ fontSize: 11.5 }}>{timeAgo(a.createdAt)}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {confirm && (
+        <Modal open onClose={() => setConfirm(null)} width={440}>
+          <SuperConfirm u={u} project={confirm.p} pc={confirm.pc} val={confirm.val}
+            onCancel={() => setConfirm(null)}
+            onConfirm={() => { actions.setSuper(u.userid, confirm.pc, confirm.val); setConfirm(null); }} />
+        </Modal>
+      )}
+    </React.Fragment>
+  );
+}
+
+/* Super-admin confirm summary (medium ceremony) — reused */
+function SuperConfirm({ u, project, pc, val, onConfirm, onCancel }) {
+  return (
+    <div style={{ padding: 26 }}>
+      <div style={{ width: 46, height: 46, borderRadius: 12, background: val ? "var(--super-wash)" : "var(--warn-wash)",
+        color: val ? "var(--super)" : "var(--warn)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+        <Icon name="star" size={24} fill={val} />
+      </div>
+      <div className="t-title" style={{ fontSize: 21, marginBottom: 8 }}>{val ? "提升为项目超管？" : "降级为普通管理员？"}</div>
+      <div className="t-body" style={{ color: "var(--ink-60)", marginBottom: 18 }}>
+        请确认以下变更。该操作通过 <span className="t-mono" style={{ fontSize: 13 }}>PUT /api/project-grant/{"{userid}"}/super</span> 在目标 project 上下文中执行。
+      </div>
+      <div style={{ background: "var(--parchment)", borderRadius: 12, padding: 16, marginBottom: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+        {[["用户", `${u.username} · ${u.userid}`], ["目标系统", `${project ? project.name : pc}`], ["变更", val ? "普通管理员 → 超级管理员" : "超级管理员 → 普通管理员"], ["影响范围", `仅 ${pc} 内的全部菜单与按钮权限`]].map(([k, v]) => (
+          <div key={k} style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+            <span className="t-cap-strong">{k}</span>
+            <span className="t-body" style={{ fontSize: 13.5, textAlign: "right", fontWeight: 500 }}>{v}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+        <button className="btn btn-neutral" onClick={onCancel}>取消</button>
+        <button className="btn" onClick={onConfirm} style={{ background: val ? "var(--super)" : "var(--warn)", color: "#fff", borderRadius: 9999, padding: "9px 20px" }}>
+          {val ? "确认提升" : "确认降级"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function UsersPage({ ctx, setAction }) {
+  const { store, go, setIntent } = ctx;
+  const [kw, setKw] = useSU("");
+  const [proj, setProj] = useSU("all");
+  const [status, setStatus] = useSU("all");
+  const [sel, setSel] = useSU(null);
+
+  useEffU(() => {
+    setAction(<button className="btn btn-primary" onClick={() => { setIntent({ type: "grant" }); go("authorization"); }}><Icon name="plus" size={16} /> 授权用户</button>);
+    return () => setAction(null);
+  }, [store]);
+
+  const rows = store.users.filter(u => {
+    if (proj !== "all" && !u.projectCodes.includes(proj)) return false;
+    if (status !== "all" && u.status !== (status === "active" ? "Active" : "Disabled")) return false;
+    if (kw && !(u.username.includes(kw) || u.userid.toLowerCase().includes(kw.toLowerCase()))) return false;
+    return true;
+  });
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18, flexWrap: "wrap" }}>
+        <SearchInput value={kw} onChange={setKw} placeholder="搜索姓名或 userid" width={240} />
+        <Segmented size="sm" value={status} onChange={setStatus} options={[{value:"all",label:"全部"},{value:"active",label:"启用"},{value:"disabled",label:"禁用"}]} />
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+          <Icon name="filter" size={15} style={{ color: "var(--ink-48)" }} />
+          <select value={proj} onChange={e => setProj(e.target.value)}
+            style={{ height: 34, borderRadius: 9999, border: "1px solid var(--hairline)", background: "#fff", padding: "0 14px", fontSize: 13.5, color: "var(--ink)" }}>
+            <option value="all">全部系统</option>
+            {store.projects.map(p => <option key={p.code} value={p.code}>{p.name}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 2.4fr 1.4fr 1fr 80px", padding: "12px 22px", borderBottom: "1px solid var(--hairline)", background: "var(--pearl)" }}>
+          {["用户", "状态", "所属系统", "权限组", "超管", ""].map((h, i) => <span key={i} className="t-cap-strong" style={{ fontSize: 12 }}>{h}</span>)}
+        </div>
+        {rows.map((u, i) => (
+          <div key={u.userid} onClick={() => setSel(u)}
+            style={{ display: "grid", gridTemplateColumns: "2fr 1fr 2.4fr 1.4fr 1fr 80px", padding: "13px 22px", alignItems: "center",
+              borderTop: i ? "1px solid var(--divider)" : "none", cursor: "pointer", transition: "background .12s" }}
+            onMouseEnter={e => e.currentTarget.style.background = "var(--pearl)"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+            <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+              <Avatar name={u.username} size={34} dim={u.status === "Disabled"} />
+              <div>
+                <div className="t-body-strong" style={{ fontSize: 14 }}>{u.username}</div>
+                <div className="t-cap"><span className="t-mono" style={{ fontSize: 11.5 }}>{u.userid}</span></div>
+              </div>
+            </div>
+            <div><Badge tone={u.status === "Active" ? "ok" : "neutral"} dot size="sm">{u.status === "Active" ? "启用" : "禁用"}</Badge></div>
+            <div><ProjectChips codes={u.projectCodes} projects={store.projects} /></div>
+            <div className="t-body" style={{ fontSize: 13.5 }}>{u.groupCodes.length > 0 ? `${u.groupCodes.length} 个组` : <span className="muted">—</span>}</div>
+            <div>{u.superProjects.length > 0 ? <Badge tone="super" size="sm" dot>{u.superProjects.length}</Badge> : <span className="muted t-cap">—</span>}</div>
+            <div style={{ textAlign: "right" }}><Icon name="chevR" size={16} style={{ color: "var(--ink-48)" }} /></div>
+          </div>
+        ))}
+        {rows.length === 0 && <div style={{ padding: 50, textAlign: "center" }} className="t-cap">无匹配用户</div>}
+      </div>
+
+      <div className="t-cap" style={{ marginTop: 14, display: "flex", justifyContent: "space-between" }}>
+        <span>显示 {rows.length} / 共 {fmt(store.stats.users)} 个管理员账号（演示数据为前 14 条）</span>
+        <span>跨 project 去重统计</span>
+      </div>
+
+      <div style={{ marginTop: 22 }}>
+        <ApiSource endpoints={[
+          { m: "GET", p: "/api/global/user/list", d: "跨 project 用户列表（project / keyword / status / groupCode 过滤）" },
+          { m: "PUT", p: "/api/global/user/{userid}/status", d: "全局启用 / 禁用账号" },
+          { m: "POST", p: "/api/global/user/{userid}/project-grants", d: "新增项目授权（详情抽屉 → 授权页）" },
+          { m: "DELETE", p: "/api/global/user/{userid}/project-grants/{project}", d: "撤销项目授权" },
+          { m: "PUT", p: "/api/project-grant/{userid}/super", d: "切换超管标记（目标 project 上下文）" },
+        ]} note="用户详情聚合了 user/list 返回的 projectCodes、groupNames、superProjects 字段，无需额外接口。" />
+      </div>
+
+      <Drawer open={!!sel} onClose={() => setSel(null)} width={470}>
+        {sel && <UserDetail user={sel} ctx={ctx} onClose={() => setSel(null)} onAuthorize={(u) => { setSel(null); setIntent({ type: "grant", userid: u.userid }); go("authorization"); }} />}
+      </Drawer>
+    </div>
+  );
+}
+
+window.UsersPage = UsersPage;
+window.SuperConfirm = SuperConfirm;
+window.ProjectChips = ProjectChips;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+/* ============================================================
+   Project authorization — user-centric ↔ project-centric.
+   APIs: POST /api/global/user/{userid}/project-grants,
+         DELETE /api/global/user/{userid}/project-grants/{project},
+         PUT /api/project-grant/{userid}/super, GET /api/global/user/list,
+         GET /api/global/project/list
+   ============================================================ */
+const { useState: useSA, useEffect: useEffA } = React;
+
+/* ---- per-project best-effort result report (matches doc shape) ---- */
+function ResultReport({ results, onClose }) {
+  const ok = results.filter(r => r.success && !r.skipped).length;
+  const sk = results.filter(r => r.skipped).length;
+  const fail = results.filter(r => !r.success).length;
+  return (
+    <div style={{ padding: 26 }}>
+      <div style={{ width: 46, height: 46, borderRadius: 12, background: fail ? "var(--warn-wash)" : "var(--ok-wash)",
+        color: fail ? "var(--warn)" : "var(--ok)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+        <Icon name="check" size={24} stroke={2.4} />
+      </div>
+      <div className="t-title" style={{ fontSize: 21, marginBottom: 6 }}>授权完成</div>
+      <div className="t-body" style={{ color: "var(--ink-60)", marginBottom: 18 }}>
+        逐 project 写入结果（best-effort 语义，单个失败不回滚其余）。成功 {ok} · 跳过 {sk} · 失败 {fail}。
+      </div>
+      <div style={{ border: "1px solid var(--hairline)", borderRadius: 12, overflow: "hidden", marginBottom: 20 }}>
+        {results.map((r, i) => (
+          <div key={r.project} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderTop: i ? "1px solid var(--divider)" : "none" }}>
+            <ProjectGlyph code={r.project} name={r.name} size={30} />
+            <div style={{ flex: 1 }}>
+              <div className="t-body-strong" style={{ fontSize: 13.5 }}>{r.name}</div>
+              <div className="t-cap"><span className="t-mono">{r.project}</span></div>
+            </div>
+            {r.skipped ? <Badge tone="neutral" size="sm">已存在 · skipped</Badge>
+              : r.success ? <Badge tone="ok" dot size="sm">success</Badge>
+              : <Badge tone="deny" dot size="sm">failed</Badge>}
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <button className="btn btn-primary" onClick={onClose}>完成</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---- user-centric grant workspace ---- */
+function UserGrant({ ctx, user }) {
+  const { store, actions } = ctx;
+  const u = store.users.find(x => x.userid === user.userid) || user;
+  const [picked, setPicked] = useSA([]);
+  const [asSuper, setAsSuper] = useSA(false);
+  const [report, setReport] = useSA(null);
+  const [superConfirm, setSuperConfirm] = useSA(null);
+
+  const available = store.projects.filter(p => !u.projectCodes.includes(p.code));
+  const toggle = (code) => setPicked(p => p.includes(code) ? p.filter(c => c !== code) : [...p, code]);
+
+  const doGrant = () => {
+    const results = picked.map(pc => {
+      const p = store.projects.find(x => x.code === pc);
+      return { project: pc, name: p.name, success: true, skipped: false };
+    });
+    actions.grantProjects(u.userid, u.username, picked, asSuper);
+    setReport(results); setPicked([]); setAsSuper(false);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+      {/* current grants */}
+      <div className="card" style={{ padding: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 13, marginBottom: 18 }}>
+          <Avatar name={u.username} size={46} dim={u.status === "Disabled"} />
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <span className="t-title" style={{ fontSize: 21 }}>{u.username}</span>
+              {u.status === "Disabled" && <Badge tone="neutral" size="sm">已禁用</Badge>}
+              {u.isSuper && <Badge tone="super" dot size="sm">全局超管</Badge>}
+            </div>
+            <div className="t-cap" style={{ marginTop: 2 }}><span className="t-mono">{u.userid}</span> · 已授权 {u.projectCodes.length} 个系统</div>
+          </div>
+        </div>
+        <div className="t-cap-strong" style={{ marginBottom: 10 }}>当前授权</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {u.projectCodes.length === 0 && <div className="t-cap" style={{ padding: "6px 0" }}>该用户暂无任何项目授权</div>}
+          {u.projectCodes.map(pc => {
+            const p = store.projects.find(x => x.code === pc);
+            const isSup = u.superProjects.includes(pc);
+            return (
+              <div key={pc} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", border: "1px solid var(--hairline)", borderRadius: 12 }}>
+                <ProjectGlyph code={pc} name={p.name} size={32} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="t-body-strong" style={{ fontSize: 14 }}>{p.name}</div>
+                  <div className="t-cap"><span className="t-mono">{pc}</span></div>
+                </div>
+                {isSup && <Badge tone="super" dot size="sm">超管</Badge>}
+                <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                  <span className="t-cap" style={{ color: isSup ? "var(--super)" : "var(--ink-48)" }}>超管</span>
+                  <Toggle tone="super" on={isSup} onChange={(v) => setSuperConfirm({ pc, p, val: v })} />
+                </div>
+                <button className="btn" onClick={() => actions.revokeGrant(u.userid, pc)} title="撤销"
+                  style={{ width: 30, height: 30, borderRadius: 8, color: "var(--deny)", background: "var(--deny-wash)" }}><Icon name="trash" size={15} /></button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* new grant */}
+      <div className="card" style={{ padding: 22 }}>
+        <div className="t-section" style={{ marginBottom: 4 }}>新增项目授权</div>
+        <div className="t-cap" style={{ marginBottom: 16 }}>选择一个或多个系统，一次性提交 · POST /api/global/user/{"{userid}"}/project-grants</div>
+        {available.length === 0 ? <div className="t-cap">已授权全部系统</div> : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 18 }}>
+            {available.map(p => {
+              const on = picked.includes(p.code);
+              return (
+                <button key={p.code} className="btn" onClick={() => toggle(p.code)}
+                  style={{ justifyContent: "flex-start", gap: 11, padding: "12px 14px", borderRadius: 12,
+                    border: on ? "2px solid var(--blue)" : "1px solid var(--hairline)", background: on ? "var(--blue-wash)" : "#fff" }}>
+                  <ProjectGlyph code={p.code} name={p.name} size={30} />
+                  <div style={{ textAlign: "left", flex: 1, minWidth: 0 }}>
+                    <div className="t-body-strong" style={{ fontSize: 13.5 }}>{p.name}</div>
+                    <div className="t-cap" style={{ fontSize: 11.5 }}><span className="t-mono">{p.code}</span></div>
+                  </div>
+                  {on && <Icon name="check" size={16} stroke={2.6} style={{ color: "var(--blue)" }} />}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "space-between", flexWrap: "wrap" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+            <Toggle tone="super" on={asSuper} onChange={setAsSuper} />
+            <div>
+              <div className="t-body-strong" style={{ fontSize: 13.5 }}>同时授予超管</div>
+              <div className="t-cap">对所选系统赋予全部权限（isSuper = true）</div>
+            </div>
+          </label>
+          <button className="btn btn-primary" disabled={picked.length === 0} onClick={doGrant}>
+            <Icon name="key" size={15} /> 授权到 {picked.length || ""} 个系统
+          </button>
+        </div>
+      </div>
+
+      {report && <Modal open onClose={() => setReport(null)} width={460}><ResultReport results={report} onClose={() => setReport(null)} /></Modal>}
+      {superConfirm && <Modal open onClose={() => setSuperConfirm(null)} width={440}>
+        <SuperConfirm u={u} project={superConfirm.p} pc={superConfirm.pc} val={superConfirm.val}
+          onCancel={() => setSuperConfirm(null)}
+          onConfirm={() => { actions.setSuper(u.userid, superConfirm.pc, superConfirm.val); setSuperConfirm(null); }} />
+      </Modal>}
+    </div>
+  );
+}
+
+/* ---- project-centric member workspace ---- */
+function ProjectGrantPanel({ ctx, project }) {
+  const { store, actions } = ctx;
+  const members = store.users.filter(u => u.projectCodes.includes(project.code));
+  const candidates = store.users.filter(u => !u.projectCodes.includes(project.code));
+  const [adding, setAdding] = useSA(false);
+  const [kw, setKw] = useSA("");
+  const [superConfirm, setSuperConfirm] = useSA(null);
+  const filtered = candidates.filter(u => u.username.includes(kw) || u.userid.toLowerCase().includes(kw.toLowerCase()));
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+      <div className="card" style={{ padding: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+          <ProjectGlyph code={project.code} name={project.name} size={46} radius={12} />
+          <div style={{ flex: 1 }}>
+            <div className="t-title" style={{ fontSize: 21 }}>{project.name}</div>
+            <div className="t-cap" style={{ marginTop: 2 }}>{project.cn} · <span className="t-mono">{project.code}</span> · {members.length} 位已授权用户</div>
+          </div>
+          <button className="btn btn-primary" onClick={() => setAdding(true)}><Icon name="plus" size={15} /> 添加用户</button>
+        </div>
+      </div>
+
+      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 2fr 1fr 90px", padding: "12px 22px", background: "var(--pearl)", borderBottom: "1px solid var(--hairline)" }}>
+          {["用户", "权限组", "超管", ""].map((h,i) => <span key={i} className="t-cap-strong" style={{ fontSize: 12 }}>{h}</span>)}
+        </div>
+        {members.map((u, i) => {
+          const isSup = u.superProjects.includes(project.code);
+          const grant = u.grants[project.code] || {};
+          const gnames = (grant.groups || []).map(gc => (store.groups.find(g => g.groupCode === gc) || {}).groupName || gc);
+          return (
+            <div key={u.userid} style={{ display: "grid", gridTemplateColumns: "2fr 2fr 1fr 90px", padding: "13px 22px", alignItems: "center", borderTop: i ? "1px solid var(--divider)" : "none" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+                <Avatar name={u.username} size={32} dim={u.status === "Disabled"} />
+                <div><div className="t-body-strong" style={{ fontSize: 14 }}>{u.username}</div><div className="t-cap"><span className="t-mono" style={{ fontSize: 11.5 }}>{u.userid}</span></div></div>
+              </div>
+              <div className="t-body" style={{ fontSize: 13 }}>{gnames.length ? gnames.join("、") : <span className="muted">—</span>}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <Toggle tone="super" on={isSup} onChange={(v) => setSuperConfirm({ u, val: v })} />
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <button className="btn" onClick={() => actions.revokeGrant(u.userid, project.code)} title="撤销授权"
+                  style={{ width: 30, height: 30, borderRadius: 8, color: "var(--deny)", background: "var(--deny-wash)" }}><Icon name="trash" size={15} /></button>
+              </div>
+            </div>
+          );
+        })}
+        {members.length === 0 && <div style={{ padding: 40, textAlign: "center" }} className="t-cap">暂无授权用户</div>}
+      </div>
+
+      <Drawer open={adding} onClose={() => setAdding(false)} width={420}>
+        <div style={{ padding: "22px 24px 16px", borderBottom: "1px solid var(--divider)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <span className="t-section">添加用户到 {project.name}</span>
+            <button className="btn" onClick={() => setAdding(false)} style={{ width: 30, height: 30, borderRadius: 8, background: "var(--parchment)" }}><Icon name="x" size={16} /></button>
+          </div>
+          <SearchInput value={kw} onChange={setKw} placeholder="搜索用户" width="100%" />
+        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "8px 16px" }}>
+          {filtered.map(u => (
+            <div key={u.userid} style={{ display: "flex", alignItems: "center", gap: 11, padding: "10px 8px", borderBottom: "1px solid var(--divider)" }}>
+              <Avatar name={u.username} size={32} />
+              <div style={{ flex: 1 }}><div className="t-body-strong" style={{ fontSize: 13.5 }}>{u.username}</div><div className="t-cap"><span className="t-mono" style={{ fontSize: 11 }}>{u.userid}</span></div></div>
+              <button className="btn btn-ghost btn-sm" onClick={() => { actions.grantProjects(u.userid, u.username, [project.code], false); ctx.toast.push(`已授权 ${u.username}`); }}>授权</button>
+            </div>
+          ))}
+          {filtered.length === 0 && <div style={{ padding: 30, textAlign: "center" }} className="t-cap">无匹配用户</div>}
+        </div>
+      </Drawer>
+
+      {superConfirm && <Modal open onClose={() => setSuperConfirm(null)} width={440}>
+        <SuperConfirm u={superConfirm.u} project={project} pc={project.code} val={superConfirm.val}
+          onCancel={() => setSuperConfirm(null)}
+          onConfirm={() => { actions.setSuper(superConfirm.u.userid, project.code, superConfirm.val); setSuperConfirm(null); }} />
+      </Modal>}
+    </div>
+  );
+}
+
+function AuthorizationPage({ ctx, setAction }) {
+  const { store, intent } = ctx;
+  const [mode, setMode] = useSA(intent && intent.project ? "project" : "user");
+  const [userId, setUserId] = useSA((intent && intent.userid) || store.users[0].userid);
+  const [projCode, setProjCode] = useSA((intent && intent.project) || store.projects[0].code);
+  const [kw, setKw] = useSA("");
+
+  useEffA(() => {
+    setAction(<Segmented value={mode} onChange={setMode} options={[{value:"user",label:"按用户授权"},{value:"project",label:"按系统授权"}]} />);
+    return () => setAction(null);
+  }, [mode]);
+
+  const user = store.users.find(u => u.userid === userId) || store.users[0];
+  const project = store.projects.find(p => p.code === projCode) || store.projects[0];
+  const userList = store.users.filter(u => u.username.includes(kw) || u.userid.toLowerCase().includes(kw.toLowerCase()));
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 20, alignItems: "start" }}>
+      {/* selector rail */}
+      <div className="card" style={{ padding: 0, overflow: "hidden", position: "sticky", top: 20 }}>
+        <div style={{ padding: 14, borderBottom: "1px solid var(--divider)" }}>
+          {mode === "user"
+            ? <SearchInput value={kw} onChange={setKw} placeholder="搜索用户" width="100%" />
+            : <div className="t-cap-strong" style={{ padding: "4px 2px" }}>选择系统</div>}
+        </div>
+        <div style={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}>
+          {mode === "user" ? userList.map(u => {
+            const on = u.userid === userId;
+            return (
+              <button key={u.userid} className="btn" onClick={() => setUserId(u.userid)}
+                style={{ width: "100%", justifyContent: "flex-start", gap: 11, padding: "11px 14px", borderRadius: 0,
+                  background: on ? "var(--blue-wash)" : "transparent", borderBottom: "1px solid var(--divider)" }}>
+                <Avatar name={u.username} size={30} dim={u.status === "Disabled"} />
+                <div style={{ textAlign: "left", flex: 1, minWidth: 0 }}>
+                  <div className="t-body-strong" style={{ fontSize: 13.5, color: on ? "var(--blue)" : "var(--ink)" }}>{u.username}</div>
+                  <div className="t-cap" style={{ fontSize: 11.5 }}>{u.projectCodes.length} 系统 · {u.superProjects.length} 超管</div>
+                </div>
+              </button>
+            );
+          }) : store.projects.map(p => {
+            const on = p.code === projCode;
+            return (
+              <button key={p.code} className="btn" onClick={() => setProjCode(p.code)}
+                style={{ width: "100%", justifyContent: "flex-start", gap: 11, padding: "12px 14px", borderRadius: 0,
+                  background: on ? "var(--blue-wash)" : "transparent", borderBottom: "1px solid var(--divider)" }}>
+                <ProjectGlyph code={p.code} name={p.name} size={32} />
+                <div style={{ textAlign: "left", flex: 1, minWidth: 0 }}>
+                  <div className="t-body-strong" style={{ fontSize: 13.5, color: on ? "var(--blue)" : "var(--ink)" }}>{p.name}</div>
+                  <div className="t-cap" style={{ fontSize: 11.5 }}>{p.users} 用户 · {p.supers} 超管</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        {mode === "user" ? <UserGrant ctx={ctx} user={user} /> : <ProjectGrantPanel ctx={ctx} project={project} />}
+        <div style={{ marginTop: 22 }}>
+          <ApiSource endpoints={[
+            { m: "POST", p: "/api/global/user/{userid}/project-grants", d: "授权到多个 project（body 含 targetProjects、isSuper、username）" },
+            { m: "DELETE", p: "/api/global/user/{userid}/project-grants/{project}", d: "撤销单个 project 授权（幂等）" },
+            { m: "PUT", p: "/api/project-grant/{userid}/super", d: "切换已有授权的超管标记" },
+            { m: "GET", p: "/api/global/user/list", d: "按系统筛选已授权用户" },
+            { m: "GET", p: "/api/global/project/list", d: "可选目标系统" },
+          ]} note="按用户与按系统两种视图共用同一组写接口，仅入口与聚合方向不同。超管切换需进入目标 project 上下文（建议未来提供全局超管切换接口）。" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.AuthorizationPage = AuthorizationPage;
+window.ResultReport = ResultReport;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+/* ============================================================
+   Permission group management.
+   APIs: GET /api/global/group/list, GET /api/group/list,
+         POST /api/group, PUT /api/group/{groupCode}/status,
+         POST /api/global/group/{groupCode}/members,
+         DELETE /api/global/group/{groupCode}/members/{userid}?targetProject=
+         GET /api/rule/tree, GET /api/api-map/list
+   ============================================================ */
+const { useState: useSG, useEffect: useEffG } = React;
+
+function GroupDetail({ group, ctx, onClose }) {
+  const { store, actions } = ctx;
+  const g = store.groups.find(x => x.groupCode === group.groupCode) || group;
+  const p = store.projects.find(x => x.code === g.project);
+  const members = store.users.filter(u => u.groupCodes.includes(g.groupCode));
+  const [adding, setAdding] = useSG(false);
+  const [kw, setKw] = useSG("");
+  const candidates = store.users.filter(u => !u.groupCodes.includes(g.groupCode) && (u.username.includes(kw) || u.userid.toLowerCase().includes(kw.toLowerCase())));
+
+  return (
+    <React.Fragment>
+      <div style={{ padding: "22px 24px 18px", borderBottom: "1px solid var(--divider)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <span className="t-cap-strong">权限组详情</span>
+          <button className="btn" onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--parchment)" }}><Icon name="x" size={17} /></button>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+          <span style={{ width: 48, height: 48, borderRadius: 13, background: "var(--blue-wash)", color: "var(--blue)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon name="shield" size={24} /></span>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <span className="t-title" style={{ fontSize: 21 }}>{g.groupName}</span>
+              <Badge tone={g.status === "Active" ? "ok" : "neutral"} dot size="sm">{g.status === "Active" ? "启用" : "禁用"}</Badge>
+            </div>
+            <div className="t-cap" style={{ marginTop: 2 }}><span className="t-mono">{g.groupCode}</span></div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+          <div style={{ flex: 1, padding: "10px 12px", background: "var(--parchment)", borderRadius: 10, display: "flex", alignItems: "center", gap: 9 }}>
+            <ProjectGlyph code={g.project} name={p ? p.name : g.project} size={26} />
+            <div><div className="t-cap" style={{ fontSize: 11 }}>所属系统</div><div className="t-body-strong" style={{ fontSize: 13 }}>{p ? p.name : g.project}</div></div>
+          </div>
+          <div style={{ flex: 1, padding: "10px 12px", background: "var(--parchment)", borderRadius: 10 }}>
+            <div className="t-cap" style={{ fontSize: 11 }}>父权限组</div>
+            <div className="t-body-strong" style={{ fontSize: 13 }}>{g.parent_group_code || "根组"}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", background: "var(--parchment)", borderRadius: 12, marginBottom: 22 }}>
+          <div><div className="t-body-strong" style={{ fontSize: 14 }}>启用状态</div><div className="t-cap">PUT /api/group/{"{groupCode}"}/status</div></div>
+          <Toggle on={g.status === "Active"} onChange={(v) => actions.setGroupStatus(g.groupCode, v ? "Active" : "Disabled")} />
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <span className="t-section">成员（{members.length}）</span>
+          <button className="btn btn-text" onClick={() => setAdding(a => !a)}><Icon name="plus" size={14} /> 添加成员</button>
+        </div>
+        {adding && (
+          <div className="anim-fade" style={{ border: "1px solid var(--hairline)", borderRadius: 12, padding: 12, marginBottom: 14 }}>
+            <SearchInput value={kw} onChange={setKw} placeholder={`搜索用户加入 ${g.project}`} width="100%" />
+            <div style={{ maxHeight: 200, overflowY: "auto", marginTop: 10 }}>
+              {candidates.slice(0, 8).map(u => (
+                <div key={u.userid} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 4px", borderTop: "1px solid var(--divider)" }}>
+                  <Avatar name={u.username} size={28} />
+                  <div style={{ flex: 1 }}><span className="t-body-strong" style={{ fontSize: 13 }}>{u.username}</span> <span className="t-cap"><span className="t-mono" style={{ fontSize: 11 }}>{u.userid}</span></span></div>
+                  <button className="btn btn-ghost btn-sm" onClick={() => actions.addMember(g.groupCode, u.userid, g.project, u.username)}>加入</button>
+                </div>
+              ))}
+              {candidates.length === 0 && <div className="t-cap" style={{ padding: 10, textAlign: "center" }}>无可添加用户</div>}
+            </div>
+          </div>
+        )}
+        <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 24 }}>
+          {members.map(u => (
+            <div key={u.userid} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 12px", border: "1px solid var(--hairline)", borderRadius: 11 }}>
+              <Avatar name={u.username} size={30} dim={u.status === "Disabled"} />
+              <div style={{ flex: 1 }}><div className="t-body-strong" style={{ fontSize: 13.5 }}>{u.username}</div><div className="t-cap"><span className="t-mono" style={{ fontSize: 11 }}>{u.userid}</span></div></div>
+              <button className="btn" onClick={() => actions.removeMember(g.groupCode, u.userid)} title="移除"
+                style={{ width: 28, height: 28, borderRadius: 8, color: "var(--deny)", background: "var(--deny-wash)" }}><Icon name="x" size={15} /></button>
+            </div>
+          ))}
+          {members.length === 0 && <div className="t-cap" style={{ padding: "6px 0" }}>暂无成员</div>}
+        </div>
+
+        <div className="t-section" style={{ marginBottom: 4 }}>授权权限码（{g.permissionCodes.length}）</div>
+        <div className="t-cap" style={{ marginBottom: 12 }}>permissionCodes = ruleCodes 推导值 ∪ extraPermissionCodes</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+          {g.permissionCodes.map(pc => (
+            <span key={pc} className="t-mono" style={{ fontSize: 11.5, padding: "5px 10px", background: pc.startsWith("menu:") ? "#eef4fb" : "#f3eefb",
+              color: pc.startsWith("menu:") ? "var(--blue)" : "var(--super)", borderRadius: 7 }}>{pc}</span>
+          ))}
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+function CreateGroupModal({ ctx, onClose }) {
+  const { store, actions } = ctx;
+  const [name, setName] = useSG("");
+  const [code, setCode] = useSG("");
+  const [project, setProject] = useSG(store.projects[0].code);
+  const [parent, setParent] = useSG("");
+  const [ruleCodes, setRuleCodes] = useSG([]);
+  const [extra, setExtra] = useSG([]);
+
+  const flatten = (nodes, out = []) => { (nodes||[]).forEach(n => { out.push(n); if (n.children) flatten(n.children, out); }); return out; };
+  const rules = flatten(store.ruleTree[project] || []);
+  const projGroups = store.groups.filter(g => g.project === project);
+  const toggleRule = (rc) => setRuleCodes(s => s.includes(rc) ? s.filter(x => x !== rc) : [...s, rc]);
+  const toggleExtra = (pc) => setExtra(s => s.includes(pc) ? s.filter(x => x !== pc) : [...s, pc]);
+
+  const derived = Array.from(new Set([
+    ...rules.filter(r => ruleCodes.includes(r.ruleCode)).map(r => r.permissionCode),
+    ...extra,
+  ]));
+
+  const submit = () => {
+    actions.createGroup({
+      groupCode: code || ("group_" + Math.random().toString(36).slice(2, 8)),
+      groupName: name || "未命名组", project, parent_group_code: parent || null, status: "Active",
+      permissionCodes: derived,
+    });
+    onClose();
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", maxHeight: "86vh" }}>
+      <div style={{ padding: "22px 26px 16px", borderBottom: "1px solid var(--divider)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div><div className="t-title" style={{ fontSize: 21 }}>新建权限组</div><div className="t-cap" style={{ marginTop: 2 }}>POST /api/group</div></div>
+        <button className="btn" onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--parchment)" }}><Icon name="x" size={17} /></button>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: 26, display: "flex", flexDirection: "column", gap: 18 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <Field label="组名称" value={name} onChange={setName} placeholder="例如 门户管理员" />
+          <Field label="组编码 groupCode" value={code} onChange={setCode} placeholder="留空自动生成 group_<guid>" mono />
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <Field label="所属系统 project" as="select" value={project} onChange={(v) => { setProject(v); setRuleCodes([]); setParent(""); }}>
+            {store.projects.map(p => <option key={p.code} value={p.code}>{p.name}</option>)}
+          </Field>
+          <Field label="父权限组" as="select" value={parent} onChange={setParent}>
+            <option value="">根组（无父级）</option>
+            {projGroups.map(g => <option key={g.groupCode} value={g.groupCode}>{g.groupName}</option>)}
+          </Field>
+        </div>
+        <div>
+          <div className="t-cap-strong" style={{ marginBottom: 8 }}>规则授权 ruleCodes · GET /api/rule/tree</div>
+          <div style={{ border: "1px solid var(--hairline)", borderRadius: 12, maxHeight: 200, overflowY: "auto", padding: 6 }}>
+            {rules.map(r => (
+              <label key={r.ruleCode} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 8px", cursor: "pointer", borderRadius: 8 }}>
+                <Check on={ruleCodes.includes(r.ruleCode)} onChange={() => toggleRule(r.ruleCode)} />
+                <span style={{ paddingLeft: r.type === "Button" ? 16 : 0, display: "flex", alignItems: "center", gap: 7, flex: 1 }}>
+                  <Badge tone={r.type === "Button" ? "neutral" : r.type === "MenuDir" ? "blue" : "ok"} size="sm">{r.type}</Badge>
+                  <span className="t-body" style={{ fontSize: 13 }}>{r.title}</span>
+                  <span className="t-mono muted" style={{ fontSize: 11, marginLeft: "auto" }}>{r.permissionCode}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="t-cap-strong" style={{ marginBottom: 8 }}>追加端点权限 extraPermissionCodes · GET /api/api-map/list</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+            {store.permView.map(pv => {
+              const on = extra.includes(pv.permissionCode);
+              return (
+                <button key={pv.permissionCode} className="btn" onClick={() => toggleExtra(pv.permissionCode)}
+                  style={{ padding: "6px 11px", borderRadius: 9999, fontSize: 12,
+                    border: on ? "1.5px solid var(--blue)" : "1px solid var(--hairline)", background: on ? "var(--blue-wash)" : "#fff", color: on ? "var(--blue)" : "var(--ink-80)" }}>
+                  <span className="t-mono" style={{ fontSize: 11.5 }}>{pv.permissionCode}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div style={{ background: "var(--parchment)", borderRadius: 12, padding: 14 }}>
+          <div className="t-cap-strong" style={{ marginBottom: 8 }}>最终授权权限码（{derived.length}）</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {derived.length === 0 ? <span className="t-cap">尚未选择任何规则或端点权限</span> : derived.map(d => <span key={d} className="t-mono" style={{ fontSize: 11, padding: "3px 8px", background: "#fff", borderRadius: 6 }}>{d}</span>)}
+          </div>
+        </div>
+      </div>
+      <div style={{ padding: "16px 26px", borderTop: "1px solid var(--divider)", display: "flex", justifyContent: "flex-end", gap: 10 }}>
+        <button className="btn btn-neutral" onClick={onClose}>取消</button>
+        <button className="btn btn-primary" onClick={submit}>创建权限组</button>
+      </div>
+    </div>
+  );
+}
+
+function GroupsPage({ ctx, setAction }) {
+  const { store, intent } = ctx;
+  const [kw, setKw] = useSG("");
+  const [proj, setProj] = useSG(intent && intent.project ? intent.project : "all");
+  const [sel, setSel] = useSG(null);
+  const [creating, setCreating] = useSG(false);
+
+  useEffG(() => {
+    setAction(<button className="btn btn-primary" onClick={() => setCreating(true)}><Icon name="plus" size={16} /> 新建权限组</button>);
+    return () => setAction(null);
+  }, []);
+
+  const rows = store.groups.filter(g => {
+    if (proj !== "all" && g.project !== proj) return false;
+    if (kw && !(g.groupName.includes(kw) || g.groupCode.toLowerCase().includes(kw.toLowerCase()))) return false;
+    return true;
+  });
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18, flexWrap: "wrap" }}>
+        <SearchInput value={kw} onChange={setKw} placeholder="搜索组名或编码" width={240} />
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+          <Icon name="filter" size={15} style={{ color: "var(--ink-48)" }} />
+          <select value={proj} onChange={e => setProj(e.target.value)} style={{ height: 34, borderRadius: 9999, border: "1px solid var(--hairline)", background: "#fff", padding: "0 14px", fontSize: 13.5 }}>
+            <option value="all">全部系统</option>
+            {store.projects.map(p => <option key={p.code} value={p.code}>{p.name}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+        {rows.map(g => {
+          const p = store.projects.find(x => x.code === g.project);
+          return (
+            <button key={g.groupCode} className="btn" onClick={() => setSel(g)}
+              style={{ textAlign: "left", flexDirection: "column", alignItems: "stretch", gap: 14, padding: 20, borderRadius: 18, border: "1px solid var(--hairline)", background: "#fff" }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = "#cdcdd2"} onMouseLeave={e => e.currentTarget.style.borderColor = "var(--hairline)"}>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+                <span style={{ width: 38, height: 38, borderRadius: 11, background: "var(--blue-wash)", color: "var(--blue)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon name="shield" size={20} /></span>
+                <Badge tone={g.status === "Active" ? "ok" : "neutral"} dot size="sm">{g.status === "Active" ? "启用" : "禁用"}</Badge>
+              </div>
+              <div>
+                <div className="t-body-strong" style={{ fontSize: 15.5 }}>{g.groupName}</div>
+                <div className="t-cap" style={{ marginTop: 2 }}><span className="t-mono" style={{ fontSize: 11.5 }}>{g.groupCode}</span></div>
+              </div>
+              <hr className="hr" style={{ background: "var(--divider)" }} />
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><ProjectGlyph code={g.project} name={p ? p.name : g.project} size={20} radius={5} /><span className="t-cap" style={{ fontWeight: 500 }}>{p ? p.name.replace(" Center","") : g.project}</span></span>
+                <span className="t-cap"><b style={{ color: "var(--ink)" }}>{g.members}</b> 成员 · <b style={{ color: "var(--ink)" }}>{g.permissionCodes.length}</b> 权限码</span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {rows.length === 0 && <div className="card" style={{ padding: 50, textAlign: "center" }}><span className="t-cap">无匹配权限组</span></div>}
+
+      <div className="t-cap" style={{ marginTop: 14 }}>显示 {rows.length} 个权限组 · 全局合计 {store.stats.groups} 个</div>
+
+      <div style={{ marginTop: 22 }}>
+        <ApiSource endpoints={[
+          { m: "GET", p: "/api/global/group/list", d: "跨 project 权限组列表" },
+          { m: "POST", p: "/api/group", d: "新建权限组（ruleCodes + extraPermissionCodes）" },
+          { m: "PUT", p: "/api/group/{groupCode}/status", d: "启用 / 禁用" },
+          { m: "POST", p: "/api/global/group/{groupCode}/members", d: "加入成员（body 含 targetProject）" },
+          { m: "DELETE", p: "/api/global/group/{groupCode}/members/{userid}", d: "移除成员（query targetProject）" },
+          { m: "GET", p: "/api/rule/tree", d: "规则授权选择器" },
+        ]} note="组层级仅用于展示，实际访问由 permissionCodes 决定。组的新建/编辑为 per-project 接口；跨 project 组模板为建议的未来扩展。" />
+      </div>
+
+      <Drawer open={!!sel} onClose={() => setSel(null)} width={470}>{sel && <GroupDetail group={sel} ctx={ctx} onClose={() => setSel(null)} />}</Drawer>
+      <Modal open={creating} onClose={() => setCreating(false)} width={620}>{creating && <CreateGroupModal ctx={ctx} onClose={() => setCreating(false)} />}</Modal>
+    </div>
+  );
+}
+
+window.GroupsPage = GroupsPage;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+/* ============================================================
+   Menu & route management — rule tree + API permission map.
+   APIs: GET /api/global/menu/list, GET /api/rule/tree, GET /api/rule/list,
+         PUT /api/rule/{ruleCode}/status, PUT /api/rule/{ruleCode}/weigh,
+         GET /api/api-map/records, POST/PUT/DELETE /api/api-map
+   ============================================================ */
+const { useState: useSM, useEffect: useEffM } = React;
+
+const TYPE_META = {
+  MenuDir: { tone: "blue", label: "目录", icon: "folder" },
+  Menu:    { tone: "ok", label: "菜单", icon: "menu" },
+  Button:  { tone: "neutral", label: "按钮", icon: "spark" },
+};
+
+function RuleRow({ node, depth, ctx, project }) {
+  const { actions } = ctx;
+  const [open, setOpen] = useSM(true);
+  const meta = TYPE_META[node.type] || TYPE_META.Menu;
+  const hasChildren = node.children && node.children.length > 0;
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "11px 16px", paddingLeft: 16 + depth * 26,
+        borderTop: "1px solid var(--divider)", background: node.status === "Disabled" ? "var(--pearl)" : "transparent" }}>
+        <button className="btn" onClick={() => hasChildren && setOpen(o => !o)} style={{ width: 18, height: 18, padding: 0, opacity: hasChildren ? 1 : 0 }}>
+          <Icon name="chevR" size={14} style={{ color: "var(--ink-48)", transform: open ? "rotate(90deg)" : "none", transition: "transform .15s" }} />
+        </button>
+        <span style={{ width: 30, height: 30, borderRadius: 8, background: meta.tone === "blue" ? "var(--blue-wash)" : meta.tone === "ok" ? "var(--ok-wash)" : "#f0f0f2",
+          color: meta.tone === "blue" ? "var(--blue)" : meta.tone === "ok" ? "var(--ok)" : "var(--ink-60)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Icon name={meta.icon} size={16} /></span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span className="t-body-strong" style={{ fontSize: 14, color: node.status === "Disabled" ? "var(--ink-48)" : "var(--ink)" }}>{node.title}</span>
+            <Badge tone={meta.tone} size="sm">{meta.label}</Badge>
+          </div>
+          <div className="t-cap" style={{ marginTop: 1, display: "flex", gap: 10 }}>
+            <span className="t-mono" style={{ fontSize: 11.5 }}>{node.ruleCode}</span>
+            {node.path && <span className="t-mono muted" style={{ fontSize: 11.5 }}>{node.path}</span>}
+          </div>
+        </div>
+        <span className="t-mono" style={{ fontSize: 11, color: node.permissionCode.startsWith("menu:") ? "var(--blue)" : "var(--super)" }}>{node.permissionCode}</span>
+        <span className="t-cap" style={{ width: 56, textAlign: "right" }}>权重 {node.weigh}</span>
+        <Toggle on={node.status === "Active"} onChange={(v) => actions.setRuleStatus(project, node.ruleCode, v ? "Active" : "Disabled")} />
+      </div>
+      {hasChildren && open && node.children.map(c => <RuleRow key={c.ruleCode} node={c} depth={depth + 1} ctx={ctx} project={project} />)}
+    </div>
+  );
+}
+
+function ApiMapEditor({ rec, onSave, onClose }) {
+  const [method, setMethod] = useSM(rec ? rec.httpMethod : "GET");
+  const [route, setRoute] = useSM(rec ? rec.routePattern : "");
+  const [perm, setPerm] = useSM(rec ? rec.permissionCode : "");
+  const [action, setAction] = useSM(rec ? rec.action : "read");
+  const editing = !!rec;
+  return (
+    <div style={{ padding: 26 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <div><div className="t-title" style={{ fontSize: 20 }}>{editing ? "编辑 API 映射" : "新增 API 映射"}</div>
+          <div className="t-cap" style={{ marginTop: 2 }}>{editing ? "PUT /api/api-map/{id} · 仅更新权限码与动作" : "POST /api/api-map"}</div></div>
+        <button className="btn" onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--parchment)" }}><Icon name="x" size={17} /></button>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: 12 }}>
+          <Field label="方法" as="select" value={method} onChange={setMethod}>
+            {["GET","POST","PUT","DELETE","PATCH"].map(m => <option key={m} value={m} disabled={editing}>{m}</option>)}
+          </Field>
+          <Field label="路由模板 routePattern" value={route} onChange={setRoute} placeholder="/api/admin/{userid}" mono />
+        </div>
+        {editing && <div className="t-cap" style={{ marginTop: -6 }}>方法与路由不可改，需删除后重建</div>}
+        <Field label="权限码 permissionCode" value={perm} onChange={setPerm} placeholder="menu:system.user" mono />
+        <Field label="动作 action" as="select" value={action} onChange={setAction}>
+          {["read","create","update","delete","execute","access"].map(a => <option key={a} value={a}>{a}</option>)}
+        </Field>
+      </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 24 }}>
+        <button className="btn btn-neutral" onClick={onClose}>取消</button>
+        <button className="btn btn-primary" onClick={() => onSave({ httpMethod: method, routePattern: route, permissionCode: perm, action })}>保存</button>
+      </div>
+    </div>
+  );
+}
+
+function MenusPage({ ctx, setAction }) {
+  const { store, actions, intent } = ctx;
+  const [tab, setTab] = useSM("tree");
+  const [proj, setProj] = useSM(intent && intent.project ? intent.project : store.projects[0].code);
+  const [kw, setKw] = useSM("");
+  const [editing, setEditing] = useSM(null); // {rec} or {new:true}
+
+  useEffM(() => {
+    setAction(<Segmented value={tab} onChange={setTab} options={[{value:"tree",label:"规则树"},{value:"apimap",label:"API 映射"}]} />);
+    return () => setAction(null);
+  }, [tab]);
+
+  const tree = store.ruleTree[proj] || [];
+  const apiRows = store.apiMap.filter(r => !kw || r.routePattern.toLowerCase().includes(kw.toLowerCase()) || r.permissionCode.toLowerCase().includes(kw.toLowerCase()));
+
+  return (
+    <div>
+      {tab === "tree" ? (
+        <React.Fragment>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
+            <div className="t-cap" style={{ marginRight: "auto" }}>规则树用于前端菜单构建与权限授权 · 跨系统查询经 GET /api/global/menu/list</div>
+            <Icon name="filter" size={15} style={{ color: "var(--ink-48)" }} />
+            <select value={proj} onChange={e => setProj(e.target.value)} style={{ height: 34, borderRadius: 9999, border: "1px solid var(--hairline)", background: "#fff", padding: "0 14px", fontSize: 13.5 }}>
+              {store.projects.map(p => <option key={p.code} value={p.code}>{p.name}</option>)}
+            </select>
+          </div>
+          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "14px 16px", background: "var(--pearl)" }}>
+              <ProjectGlyph code={proj} name={(store.projects.find(p=>p.code===proj)||{}).name} size={30} />
+              <div style={{ flex: 1 }}><div className="t-body-strong" style={{ fontSize: 14 }}>{(store.projects.find(p=>p.code===proj)||{}).name} 规则树</div></div>
+              <span className="t-cap">GET /api/rule/tree</span>
+            </div>
+            {tree.length === 0 ? <div style={{ padding: 40, textAlign: "center" }} className="t-cap">该系统暂无规则</div>
+              : tree.map(n => <RuleRow key={n.ruleCode} node={n} depth={0} ctx={ctx} project={proj} />)}
+          </div>
+          <div style={{ marginTop: 22 }}>
+            <ApiSource endpoints={[
+              { m: "GET", p: "/api/rule/tree", d: "完整菜单 / 按钮规则树" },
+              { m: "GET", p: "/api/global/menu/list", d: "跨 project 规则查询" },
+              { m: "PUT", p: "/api/rule/{ruleCode}/status", d: "启用 / 禁用规则" },
+              { m: "PUT", p: "/api/rule/{ruleCode}/weigh", d: "调整排序权重" },
+              { m: "POST", p: "/api/rule", d: "新建目录 / 菜单 / 按钮" },
+              { m: "DELETE", p: "/api/rule/{ruleCode}", d: "删除规则" },
+            ]} />
+          </div>
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
+            <SearchInput value={kw} onChange={setKw} placeholder="搜索路由或权限码" width={260} />
+            <div className="t-cap" style={{ marginLeft: "auto" }}>HTTP route → permissionCode / action 映射 · 变更触发缓存失效</div>
+            <button className="btn btn-primary btn-sm" onClick={() => setEditing({ new: true })}><Icon name="plus" size={15} /> 新增映射</button>
+          </div>
+          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "80px 2.2fr 2fr 1fr 90px 70px", padding: "12px 22px", background: "var(--pearl)", borderBottom: "1px solid var(--hairline)" }}>
+              {["方法","路由模板","权限码","动作","状态",""].map((h,i)=><span key={i} className="t-cap-strong" style={{ fontSize: 12 }}>{h}</span>)}
+            </div>
+            {apiRows.map((r, i) => (
+              <div key={r.id} style={{ display: "grid", gridTemplateColumns: "80px 2.2fr 2fr 1fr 90px 70px", padding: "12px 22px", alignItems: "center", borderTop: i ? "1px solid var(--divider)" : "none" }}>
+                <span style={{ fontFamily: "SF Mono, ui-monospace, monospace", fontSize: 11.5, fontWeight: 700, color: METHOD_TONE[r.httpMethod] }}>{r.httpMethod}</span>
+                <span className="t-mono" style={{ fontSize: 12.5 }}>{r.routePattern}</span>
+                <span className="t-mono" style={{ fontSize: 12, color: r.permissionCode.startsWith("menu:") ? "var(--blue)" : r.permissionCode.startsWith("button:") ? "var(--super)" : "var(--ink-80)" }}>{r.permissionCode}</span>
+                <span><Badge tone="neutral" size="sm">{r.action}</Badge></span>
+                <span><Badge tone={r.status === "Active" ? "ok" : "neutral"} dot size="sm">{r.status === "Active" ? "启用" : "禁用"}</Badge></span>
+                <span style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                  <button className="btn" onClick={() => setEditing({ rec: r })} style={{ width: 28, height: 28, borderRadius: 7, background: "var(--parchment)", color: "var(--ink-60)" }}><Icon name="edit" size={14} /></button>
+                  <button className="btn" onClick={() => actions.deleteApiMap(r.id)} style={{ width: 28, height: 28, borderRadius: 7, background: "var(--deny-wash)", color: "var(--deny)" }}><Icon name="trash" size={14} /></button>
+                </span>
+              </div>
+            ))}
+            {apiRows.length === 0 && <div style={{ padding: 40, textAlign: "center" }} className="t-cap">无匹配记录</div>}
+          </div>
+          <div className="t-cap" style={{ marginTop: 12 }}>共 {apiRows.length} 条映射记录 · 数据源为 MySQL 真相表（GET /api/api-map/records）</div>
+          <div style={{ marginTop: 22 }}>
+            <ApiSource endpoints={[
+              { m: "GET", p: "/api/api-map/records", d: "完整映射记录（含 id，可编辑）" },
+              { m: "POST", p: "/api/api-map", d: "新增映射 → Outbox 触发缓存失效" },
+              { m: "PUT", p: "/api/api-map/{id}", d: "更新权限码 / 动作" },
+              { m: "DELETE", p: "/api/api-map/{id}", d: "删除映射" },
+              { m: "GET", p: "/api/api-map/list", d: "ES 权限视图（只读展示）" },
+            ]} />
+          </div>
+        </React.Fragment>
+      )}
+
+      <Modal open={!!editing} onClose={() => setEditing(null)} width={500}>
+        {editing && <ApiMapEditor rec={editing.rec}
+          onClose={() => setEditing(null)}
+          onSave={(data) => { editing.rec ? actions.updateApiMap(editing.rec.id, { permissionCode: data.permissionCode, action: data.action }) : actions.addApiMap(data); setEditing(null); }} />}
+      </Modal>
+    </div>
+  );
+}
+
+window.MenusPage = MenusPage;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+/* ============================================================
+   Audit & activity — runtime authZ decisions + permission view.
+   APIs: GET /api/search/audit-logs, GET /api/search/permission-view
+   ============================================================ */
+const { useState: useSAu, useEffect: useEffAu } = React;
+
+function AuditPage({ ctx }) {
+  const { store, intent } = ctx;
+  const [tab, setTab] = useSAu("logs");
+  const [result, setResult] = useSAu("all");
+  const [method, setMethod] = useSAu("all");
+  const [kw, setKw] = useSAu("");
+
+  const rows = store.audit.filter(a => {
+    if (result !== "all" && a.result !== result) return false;
+    if (method !== "all" && a.httpMethod !== method) return false;
+    if (kw && !(a.username.includes(kw) || a.userid.toLowerCase().includes(kw.toLowerCase()) || a.permissionCode.toLowerCase().includes(kw.toLowerCase()))) return false;
+    return true;
+  });
+  const counts = {
+    Allow: store.audit.filter(a => a.result === "Allow").length,
+    Deny: store.audit.filter(a => a.result === "Deny").length,
+    Error: store.audit.filter(a => a.result === "Error").length,
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
+        <Segmented value={tab} onChange={setTab} options={[{value:"logs",label:"鉴权日志"},{value:"perm",label:"权限视图"}]} />
+        <div style={{ marginLeft: "auto" }} className="t-cap">只读查询 · 不产生写操作与 Outbox 事件</div>
+      </div>
+
+      {tab === "logs" ? (
+        <React.Fragment>
+          {/* honest scope callout */}
+          <div style={{ display: "flex", gap: 11, alignItems: "flex-start", padding: "13px 16px", background: "var(--warn-wash)", border: "1px solid #ecdcb0", borderRadius: 12, marginBottom: 18 }}>
+            <Icon name="spark" size={17} style={{ color: "var(--warn)", marginTop: 1 }} />
+            <div className="t-cap" style={{ color: "#7a5500", lineHeight: 1.5 }}>
+              本页记录的是<b>运行时鉴权结果</b>（Allow / Deny / Error），来自 GET /api/search/audit-logs。
+              它<b>不是</b>授权变更历史（谁授予 / 撤销了什么）—— 写操作审计追踪为建议的未来 API 扩展。
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 14, marginBottom: 18 }}>
+            {[["通过","Allow","ok",counts.Allow],["拒绝","Deny","deny",counts.Deny],["异常","Error","warn",counts.Error]].map(([label,key,tone,val]) => (
+              <button key={key} className="btn card" onClick={() => setResult(result === key ? "all" : key)}
+                style={{ flex: 1, padding: "16px 20px", flexDirection: "column", alignItems: "flex-start", gap: 8,
+                  borderColor: result === key ? `var(--${tone})` : "var(--hairline)", borderWidth: result === key ? 2 : 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
+                  <Badge tone={tone} dot size="sm">{label}</Badge>
+                  <Icon name="filter" size={13} style={{ marginLeft: "auto", color: result === key ? `var(--${tone})` : "var(--ink-48)" }} />
+                </div>
+                <div className="t-display" style={{ fontSize: 30 }}>{val}</div>
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
+            <SearchInput value={kw} onChange={setKw} placeholder="搜索用户或权限码" width={240} />
+            <Segmented size="sm" value={result} onChange={setResult} options={[{value:"all",label:"全部"},{value:"Allow",label:"通过"},{value:"Deny",label:"拒绝"},{value:"Error",label:"异常"}]} />
+            <select value={method} onChange={e => setMethod(e.target.value)} style={{ height: 34, borderRadius: 9999, border: "1px solid var(--hairline)", background: "#fff", padding: "0 14px", fontSize: 13.5 }}>
+              <option value="all">全部方法</option>
+              {["GET","POST","PUT","DELETE"].map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <button className="btn btn-neutral btn-sm" style={{ marginLeft: "auto" }}><Icon name="dl" size={15} /> 导出</button>
+          </div>
+
+          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1.6fr 2fr 1.6fr 0.9fr", padding: "12px 22px", background: "var(--pearl)", borderBottom: "1px solid var(--hairline)" }}>
+              {["时间","用户","请求","权限码","结果"].map((h,i)=><span key={i} className="t-cap-strong" style={{ fontSize: 12 }}>{h}</span>)}
+            </div>
+            {rows.map((a, i) => {
+              const tone = a.result === "Allow" ? "ok" : a.result === "Deny" ? "deny" : "warn";
+              const label = a.result === "Allow" ? "通过" : a.result === "Deny" ? "拒绝" : "异常";
+              return (
+                <div key={a.auditId} style={{ display: "grid", gridTemplateColumns: "1.4fr 1.6fr 2fr 1.6fr 0.9fr", padding: "12px 22px", alignItems: "center", borderTop: i ? "1px solid var(--divider)" : "none" }}>
+                  <div><div className="t-body" style={{ fontSize: 13 }}>{fmtTime(a.createdAt)}</div><div className="t-cap" style={{ fontSize: 11 }}>{timeAgo(a.createdAt)}</div></div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                    <Avatar name={a.username} size={28} />
+                    <div><div className="t-body-strong" style={{ fontSize: 13 }}>{a.username}</div><div className="t-cap"><span className="t-mono" style={{ fontSize: 11 }}>{a.userid}</span> · {store.helpers.pname(a.project).replace(" Center","")}</div></div>
+                  </div>
+                  <div><span style={{ fontFamily: "SF Mono, ui-monospace, monospace", fontSize: 11, fontWeight: 700, color: METHOD_TONE[a.httpMethod] }}>{a.httpMethod}</span> <span className="t-mono" style={{ fontSize: 12 }}>{a.route}</span></div>
+                  <div className="t-mono" style={{ fontSize: 12, color: a.permissionCode.startsWith("menu:") ? "var(--blue)" : a.permissionCode.startsWith("button:") ? "var(--super)" : "var(--ink-80)" }}>{a.permissionCode}</div>
+                  <div><Badge tone={tone} dot size="sm">{label}</Badge></div>
+                </div>
+              );
+            })}
+            {rows.length === 0 && <div style={{ padding: 40, textAlign: "center" }} className="t-cap">无匹配日志</div>}
+          </div>
+          <div className="t-cap" style={{ marginTop: 12 }}>显示 {rows.length} 条 · 支持 userid / permissionCode / result / httpMethod / 时间范围过滤</div>
+
+          <div style={{ marginTop: 22 }}>
+            <ApiSource endpoints={[
+              { m: "GET", p: "/api/search/audit-logs", d: "鉴权审计日志（userid / permissionCode / result / httpMethod / createdAtFrom~To）" },
+            ]} note="返回字段：auditId、userid、project、permissionCode、result、reason、createdAt。" />
+          </div>
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <div className="t-cap" style={{ marginBottom: 14 }}>API 到权限码的权限视图 · GET /api/search/permission-view</div>
+          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 2fr", padding: "12px 22px", background: "var(--pearl)", borderBottom: "1px solid var(--hairline)" }}>
+              {["权限码","动作","资源类型","标题"].map((h,i)=><span key={i} className="t-cap-strong" style={{ fontSize: 12 }}>{h}</span>)}
+            </div>
+            {store.permView.map((pv, i) => (
+              <div key={pv.permissionCode} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 2fr", padding: "13px 22px", alignItems: "center", borderTop: i ? "1px solid var(--divider)" : "none" }}>
+                <span className="t-mono" style={{ fontSize: 12.5, color: pv.permissionCode.startsWith("menu:") ? "var(--blue)" : pv.permissionCode.startsWith("button:") ? "var(--super)" : "var(--ink-80)" }}>{pv.permissionCode}</span>
+                <span><Badge tone="neutral" size="sm">{pv.action}</Badge></span>
+                <span className="t-body" style={{ fontSize: 13 }}>{pv.resourceType}</span>
+                <span className="t-body" style={{ fontSize: 13 }}>{pv.title}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 22 }}>
+            <ApiSource endpoints={[
+              { m: "GET", p: "/api/search/permission-view", d: "权限视图（permissionCode / action / resourceType / keyword）" },
+            ]} />
+          </div>
+        </React.Fragment>
+      )}
+    </div>
+  );
+}
+
+window.AuditPage = AuditPage;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+/* ============================================================
+   Concept & IA + Page→API mapping appendix + future extensions.
+   ============================================================ */
+const { useState: useSC } = React;
+
+function ConceptPage({ ctx, go }) {
+  const principles = [
+    { icon: "grid", title: "卡片优先的呈现", desc: "信息以卡片与画廊式平铺组织，而非密集的 RBAC 树。色彩切换即分隔，去除多余边框与阴影。" },
+    { icon: "key", title: "清晰的授权工作流", desc: "授权是核心任务。按用户与按系统两种视图共用同一组接口，逐 project 结果透明可见。" },
+    { icon: "shield", title: "契约即真相", desc: "每个界面只消费现有 /api/global/* 与配套接口。不臆造后端能力，缺口单列为未来扩展。" },
+    { icon: "spark", title: "克制的视觉", desc: "单一 Action Blue 承载全部交互信号，SF Pro 字体与充裕留白，营造高端而非传统后台的观感。" },
+  ];
+  const iaTree = [
+    { label: "概览", sub: "权限运营中心", api: "project/list · user/list · group/list · menu/list · audit-logs" },
+    { label: "用户", sub: "跨 project 管理员账号", api: "global/user/list · user/{id}/status" },
+    { label: "授权", sub: "Project 访问与超管", api: "user/{id}/project-grants · project-grant/{id}/super" },
+    { label: "权限组", sub: "成员与权限码", api: "global/group/list · group/{code}/members · rule/tree" },
+    { label: "菜单与路由", sub: "规则树与 API 映射", api: "global/menu/list · rule/* · api-map/*" },
+    { label: "审计", sub: "运行时鉴权与权限视图", api: "search/audit-logs · search/permission-view" },
+  ];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
+      {/* vision hero */}
+      <div style={{ background: "var(--tile-dark)", borderRadius: 24, padding: "48px 44px", color: "#fff" }}>
+        <Badge tone="blue" size="sm">设计愿景</Badge>
+        <div className="t-hero" style={{ color: "#fff", marginTop: 18, maxWidth: 760, fontSize: 42 }}>把跨系统的权限治理，做成一座安静的画廊。</div>
+        <div className="t-lead" style={{ color: "#bbb", marginTop: 18, maxWidth: 680, fontSize: 20 }}>
+          统一权限中心以保留 project <span className="t-mono" style={{ color: "#fff", fontSize: 16 }}>__global__</span> 进入，
+          将六大系统的用户、授权、权限组、菜单与审计聚合为一个运营中心 —— 每个操作都严格映射到现有 API 契约。
+        </div>
+        <div style={{ display: "flex", gap: 40, marginTop: 32 }}>
+          {[["6","接入系统"],["2,356","管理员"],["158","权限组"],["1,248","菜单路由"]].map(([v,l]) => (
+            <div key={l}><div className="t-display" style={{ color: "#fff", fontSize: 32 }}>{v}</div><div className="t-cap" style={{ color: "#999", marginTop: 4 }}>{l}</div></div>
+          ))}
+        </div>
+      </div>
+
+      {/* principles */}
+      <div>
+        <div className="t-title" style={{ marginBottom: 6 }}>设计原则</div>
+        <div className="t-body" style={{ color: "var(--ink-60)", marginBottom: 20 }}>源自 Apple 设计语言，服务于企业级权限运营效率。</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          {principles.map(p => (
+            <div key={p.title} className="card" style={{ padding: 26, display: "flex", gap: 16 }}>
+              <span style={{ width: 44, height: 44, borderRadius: 12, background: "var(--blue-wash)", color: "var(--blue)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Icon name={p.icon} size={22} /></span>
+              <div><div className="t-section" style={{ marginBottom: 6 }}>{p.title}</div><div className="t-body" style={{ color: "var(--ink-60)", fontSize: 14.5 }}>{p.desc}</div></div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* IA */}
+      <div>
+        <div className="t-title" style={{ marginBottom: 6 }}>信息架构与导航</div>
+        <div className="t-body" style={{ color: "var(--ink-60)", marginBottom: 20 }}>六个运营模块 + 两个说明模块，每个模块聚合一组现有接口。</div>
+        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          {iaTree.map((n, i) => (
+            <div key={n.label} style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 24px", borderTop: i ? "1px solid var(--divider)" : "none" }}>
+              <span className="t-mono muted" style={{ width: 24, fontSize: 12 }}>{String(i+1).padStart(2,"0")}</span>
+              <div style={{ width: 150, flexShrink: 0 }}><div className="t-body-strong">{n.label}</div><div className="t-cap">{n.sub}</div></div>
+              <Icon name="arrowR" size={15} style={{ color: "var(--ink-48)", flexShrink: 0 }} />
+              <span className="t-mono" style={{ fontSize: 11.5, color: "var(--ink-60)" }}>{n.api}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="card" style={{ padding: 28, display: "flex", alignItems: "center", gap: 20, background: "var(--blue-wash)", borderColor: "var(--blue-wash-strong)" }}>
+        <div style={{ flex: 1 }}>
+          <div className="t-section" style={{ color: "var(--blue)" }}>查看完整的页面 · API 映射</div>
+          <div className="t-body" style={{ color: "var(--ink-60)", marginTop: 4 }}>逐页对照所用接口、聚合方式与契约支持情况，并附未来扩展建议。</div>
+        </div>
+        <button className="btn btn-primary" onClick={() => go("apimap")}>打开映射表 <Icon name="arrowR" size={15} /></button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Page → API mapping appendix ---------------- */
+const PAGE_MAP = [
+  { page: "概览 / 运营中心", endpoints: [
+      { m:"GET", p:"/api/admin/index" }, { m:"GET", p:"/api/global/project/list" }, { m:"GET", p:"/api/global/user/list" },
+      { m:"GET", p:"/api/global/group/list" }, { m:"GET", p:"/api/global/menu/list" }, { m:"GET", p:"/api/search/audit-logs" }],
+    data: "系统计数、管理员/组/菜单总数、近期鉴权活动", actions: "导航跳转、启动授权场景", support: "full",
+    note: "每个 project 的细分计数由各 list 接口传 project 参数聚合" },
+  { page: "用户管理", endpoints: [
+      { m:"GET", p:"/api/global/user/list" }, { m:"PUT", p:"/api/global/user/{userid}/status" },
+      { m:"POST", p:"/api/global/user/{userid}/project-grants" }, { m:"DELETE", p:"/api/global/user/{userid}/project-grants/{project}" }],
+    data: "跨 project 用户、状态、所属系统、权限组、超管", actions: "启用/禁用、查看详情、撤销授权", support: "full" },
+  { page: "项目授权", endpoints: [
+      { m:"POST", p:"/api/global/user/{userid}/project-grants" }, { m:"DELETE", p:"/api/global/user/{userid}/project-grants/{project}" },
+      { m:"GET", p:"/api/global/user/list" }, { m:"GET", p:"/api/global/project/list" }],
+    data: "用户授权关系、目标系统、逐 project 结果报告", actions: "多选系统授权、撤销、自动建号", support: "full" },
+  { page: "超管提升 / 降级", endpoints: [
+      { m:"PUT", p:"/api/project-grant/{userid}/super" }, { m:"POST", p:"/api/global/user/{userid}/project-grants" }],
+    data: "用户在各 project 的 super 标记", actions: "确认摘要后提升 / 降级", support: "partial",
+    note: "全局已存在授权的 super 切换需进入目标 project 上下文；建议补全局超管切换接口" },
+  { page: "权限组管理", endpoints: [
+      { m:"GET", p:"/api/global/group/list" }, { m:"POST", p:"/api/group" }, { m:"PUT", p:"/api/group/{groupCode}/status" },
+      { m:"POST", p:"/api/global/group/{groupCode}/members" }, { m:"DELETE", p:"/api/global/group/{groupCode}/members/{userid}" }, { m:"GET", p:"/api/rule/tree" }],
+    data: "跨 project 权限组、成员、权限码、规则", actions: "创建、启停、增删成员、规则授权", support: "partial",
+    note: "组的新建/编辑为 per-project 接口；跨 project 组模板为未来扩展" },
+  { page: "菜单与路由", endpoints: [
+      { m:"GET", p:"/api/global/menu/list" }, { m:"GET", p:"/api/rule/tree" }, { m:"PUT", p:"/api/rule/{ruleCode}/status" },
+      { m:"PUT", p:"/api/rule/{ruleCode}/weigh" }, { m:"GET", p:"/api/api-map/records" }, { m:"POST", p:"/api/api-map" }],
+    data: "规则树、菜单/按钮、API 权限映射", actions: "启停规则、排序、API 映射增删改", support: "full" },
+  { page: "审计与活动", endpoints: [
+      { m:"GET", p:"/api/search/audit-logs" }, { m:"GET", p:"/api/search/permission-view" }],
+    data: "运行时鉴权结果（Allow/Deny/Error）、权限视图", actions: "按结果/方法/时间过滤、导出", support: "partial",
+    note: "仅运行时鉴权决策；授权变更历史（操作审计）为未来扩展" },
+];
+
+const FUTURE = [
+  { title: "授权变更审计追踪", why: "现有 audit-logs 仅记录运行时鉴权决策，无法回答“谁在何时授予/撤销/提升了什么”。", api: "GET /api/global/change-logs", impact: "高" },
+  { title: "全局超管切换", why: "全局 project-grants 对已存在授权返回 skipped，不更新 super；切换需逐 project 进入上下文。", api: "PUT /api/global/user/{userid}/super", impact: "高" },
+  { title: "汇总统计接口", why: "首页计数当前需对多个 list 接口分别取 total，单一汇总接口可减少调用与延迟。", api: "GET /api/global/summary", impact: "中" },
+  { title: "全局用户资料编辑", why: "用户名修改为 per-project 接口；状态已是全局写入，资料编辑宜对齐为全局。", api: "PUT /api/global/user/{userid}", impact: "中" },
+  { title: "跨 project 权限组模板", why: "组的新建/编辑均为 per-project；批量在多系统创建同构组目前需逐项目重复。", api: "POST /api/global/group", impact: "中" },
+  { title: "批量成员操作回执", why: "成员逐个加入/移除；批量操作并返回逐条结果可提升运营效率。", api: "POST /api/global/group/{groupCode}/members:batch", impact: "低" },
+];
+
+function ApiMapPage({ ctx, go }) {
+  const supTone = { full: ["ok","完全支持"], partial: ["warn","部分支持 · 见备注"] };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div>
+        <div className="t-title" style={{ marginBottom: 6 }}>页面 · API 映射</div>
+        <div className="t-body" style={{ color: "var(--ink-60)", maxWidth: 680 }}>每个界面所消费的接口、数据、动作与契约支持情况。全部基于现有 API，未臆造任何后端能力。</div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {PAGE_MAP.map(pm => {
+          const [tone, label] = supTone[pm.support];
+          return (
+            <div key={pm.page} className="card" style={{ padding: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+                <div className="t-section">{pm.page}</div>
+                <Badge tone={tone} dot size="md">{label}</Badge>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+                {pm.endpoints.map((e, i) => <ApiTag key={i} method={e.m} path={e.p} mini />)}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div><div className="t-cap-strong" style={{ marginBottom: 4 }}>展示数据</div><div className="t-body" style={{ fontSize: 14, color: "var(--ink-60)" }}>{pm.data}</div></div>
+                <div><div className="t-cap-strong" style={{ marginBottom: 4 }}>支持动作</div><div className="t-body" style={{ fontSize: 14, color: "var(--ink-60)" }}>{pm.actions}</div></div>
+              </div>
+              {pm.note && <div style={{ display: "flex", gap: 9, alignItems: "flex-start", marginTop: 14, padding: "10px 13px", background: "var(--warn-wash)", borderRadius: 10 }}>
+                <Icon name="spark" size={14} style={{ color: "var(--warn)", marginTop: 2 }} />
+                <span className="t-cap" style={{ color: "#7a5500" }}>{pm.note}</span>
+              </div>}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* future extensions */}
+      <div>
+        <div className="t-title" style={{ marginBottom: 6 }}>未来 API 扩展建议</div>
+        <div className="t-body" style={{ color: "var(--ink-60)", marginBottom: 20, maxWidth: 680 }}>以下能力当前契约尚未提供。设计已用现有接口降级实现，补齐后体验更顺滑。这些为<b>独立建议</b>，不影响现有可实现性。</div>
+        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1.3fr 2fr 1.4fr 70px", padding: "12px 24px", background: "var(--pearl)", borderBottom: "1px solid var(--hairline)" }}>
+            {["能力","现状缺口","建议接口","影响"].map((h,i)=><span key={i} className="t-cap-strong" style={{ fontSize: 12 }}>{h}</span>)}
+          </div>
+          {FUTURE.map((f, i) => (
+            <div key={f.title} style={{ display: "grid", gridTemplateColumns: "1.3fr 2fr 1.4fr 70px", padding: "16px 24px", alignItems: "center", borderTop: i ? "1px solid var(--divider)" : "none" }}>
+              <span className="t-body-strong" style={{ fontSize: 14 }}>{f.title}</span>
+              <span className="t-body" style={{ fontSize: 13, color: "var(--ink-60)" }}>{f.why}</span>
+              <span className="t-mono" style={{ fontSize: 11.5, color: "var(--blue)" }}>{f.api}</span>
+              <span><Badge tone={f.impact === "高" ? "deny" : f.impact === "中" ? "warn" : "neutral"} size="sm">{f.impact}</Badge></span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.ConceptPage = ConceptPage;
+window.ApiMapPage = ApiMapPage;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+/* ============================================================
+   App shell — sidebar nav, top bar, in-memory store + actions.
+   ============================================================ */
+const { useState: useS, useMemo: useM } = React;
+
+/* ---- deep clone seed into mutable store ---- */
+function initStore() {
+  const d = window.PC_DATA;
+  return {
+    projects: d.PROJECTS,
+    users: JSON.parse(JSON.stringify(d.USERS)),
+    groups: JSON.parse(JSON.stringify(d.GROUPS)),
+    ruleTree: JSON.parse(JSON.stringify(d.RULE_TREE)),
+    audit: d.AUDIT,
+    apiMap: JSON.parse(JSON.stringify(d.API_MAP)),
+    permView: d.PERMISSION_VIEW,
+    stats: d.STATS,
+    helpers: d.helpers,
+  };
+}
+
+const NAV = [
+  { group: "运营", items: [
+    { key: "dashboard", label: "概览", icon: "grid" },
+    { key: "users", label: "用户", icon: "users" },
+    { key: "authorization", label: "授权", icon: "key" },
+    { key: "groups", label: "权限组", icon: "shield" },
+    { key: "menus", label: "菜单与路由", icon: "menu" },
+    { key: "audit", label: "审计", icon: "clock" },
+  ]},
+  { group: "设计说明", items: [
+    { key: "concept", label: "设计愿景与架构", icon: "spark" },
+    { key: "apimap", label: "页面 · API 映射", icon: "link" },
+  ]},
+];
+
+const PAGE_TITLES = {
+  dashboard: ["概览", "权限运营中心"],
+  users: ["用户", "跨 project 管理员账号"],
+  authorization: ["授权", "Project 访问与超管管理"],
+  groups: ["权限组", "成员与权限码管理"],
+  menus: ["菜单与路由", "规则树与 API 权限映射"],
+  audit: ["审计", "运行时鉴权与权限视图"],
+  concept: ["设计愿景与架构", "Unified Permission Center"],
+  apimap: ["页面 · API 映射", "契约对照与未来扩展"],
+};
+
+function Sidebar({ page, setPage }) {
+  return (
+    <div style={{ width: 248, flexShrink: 0, background: "#fff", borderRight: "1px solid var(--hairline)",
+      display: "flex", flexDirection: "column", height: "100%" }}>
+      <div style={{ padding: "20px 20px 16px", display: "flex", alignItems: "center", gap: 11 }}>
+        <div style={{ width: 34, height: 34, borderRadius: 9, background: "var(--ink)", color: "#fff",
+          display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Icon name="shield" size={19} fill />
+        </div>
+        <div>
+          <div className="t-body-strong" style={{ fontSize: 14.5, letterSpacing: "-0.02em" }}>统一权限中心</div>
+          <div className="t-cap" style={{ fontSize: 11 }}>Permission Center</div>
+        </div>
+      </div>
+      <div style={{ padding: "0 14px 10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "var(--parchment)",
+          borderRadius: 10 }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--ok)" }} />
+          <span className="t-cap-strong" style={{ fontSize: 12 }}>全局视图</span>
+          <span className="t-mono" style={{ marginLeft: "auto", fontSize: 11, color: "var(--ink-48)" }}>__global__</span>
+        </div>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: "4px 14px" }}>
+        {NAV.map(sec => (
+          <div key={sec.group} style={{ marginBottom: 20 }}>
+            <div className="t-micro" style={{ color: "var(--ink-48)", padding: "0 12px 8px", textTransform: "uppercase" }}>{sec.group}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {sec.items.map(it => {
+                const active = page === it.key;
+                return (
+                  <button key={it.key} className="btn" onClick={() => setPage(it.key)}
+                    style={{ justifyContent: "flex-start", gap: 11, padding: "9px 12px", borderRadius: 9,
+                      background: active ? "var(--blue-wash)" : "transparent", color: active ? "var(--blue)" : "var(--ink-80)",
+                      fontWeight: active ? 600 : 400, fontSize: 14, width: "100%" }}>
+                    <Icon name={it.icon} size={17} stroke={active ? 2 : 1.7} />
+                    {it.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ padding: 14, borderTop: "1px solid var(--divider)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "6px 8px" }}>
+          <Avatar name="张三" size={34} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="t-body-strong" style={{ fontSize: 13.5 }}>张三</div>
+            <div className="t-cap" style={{ fontSize: 11 }}>EMP001 · 全局超管</div>
+          </div>
+          <Badge tone="super" size="sm" dot>super</Badge>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TopBar({ page, action }) {
+  const [title, sub] = PAGE_TITLES[page] || ["", ""];
+  return (
+    <div style={{ height: 60, flexShrink: 0, borderBottom: "1px solid var(--hairline)", background: "rgba(255,255,255,0.8)",
+      backdropFilter: "saturate(180%) blur(20px)", WebkitBackdropFilter: "saturate(180%) blur(20px)",
+      display: "flex", alignItems: "center", padding: "0 32px", gap: 16, position: "sticky", top: 0, zIndex: 20 }}>
+      <div style={{ minWidth: 0 }}>
+        <div className="t-body-strong" style={{ fontSize: 15 }}>{title}</div>
+        <div className="t-cap" style={{ fontSize: 12 }}>{sub}</div>
+      </div>
+      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+        {action}
+      </div>
+    </div>
+  );
+}
+
+function Stub({ name }) {
+  return <div className="card" style={{ padding: 60, textAlign: "center" }}><div className="t-lead">{name} · 建设中</div></div>;
+}
+
+function App() {
+  const [store, setStore] = useS(initStore);
+  const [page, setPage] = useS("dashboard");
+  const [intent, setIntent] = useS(null); // cross-page action intent
+  const toast = useToast();
+
+  const go = (p) => { setPage(p); setIntent(null); };
+
+  // scenario launcher from dashboard
+  const scenario = (key, project) => {
+    if (key === "grant" || key === "crossview") { setPage("authorization"); setIntent({ type: key, project }); }
+    else if (key === "super") { setPage("authorization"); setIntent({ type: "super", project }); }
+    else if (key === "members") { setPage("groups"); setIntent({ type: "members", project }); }
+    else if (key === "review") { setPage("audit"); setIntent({ type: "review" }); }
+    else if (key === "menus") { setPage("menus"); setIntent({ type: "menus", project }); }
+  };
+
+  // ---- store actions ----
+  const actions = useM(() => ({
+    setUserStatus(userid, status) {
+      setStore(s => ({ ...s, users: s.users.map(u => u.userid === userid ? { ...u, status } : u) }));
+      toast.push(status === "Disabled" ? "已禁用账号" : "已启用账号");
+    },
+    grantProjects(userid, username, targetProjects, isSuper) {
+      setStore(s => {
+        let users = s.users; let u = users.find(x => x.userid === userid);
+        if (!u && username) { u = { userid, username, status: "Active", projectCodes: [], groupCodes: [], groupNames: [], superProjects: [], isSuper: false, grants: {} }; users = [...users, u]; }
+        return { ...s, users: users.map(x => {
+          if (x.userid !== userid) return x;
+          const grants = { ...x.grants };
+          targetProjects.forEach(pc => { if (!grants[pc]) grants[pc] = { groups: [], super: !!isSuper }; });
+          const projectCodes = Array.from(new Set([...x.projectCodes, ...targetProjects]));
+          const superProjects = isSuper ? Array.from(new Set([...x.superProjects, ...targetProjects])) : x.superProjects;
+          return { ...x, grants, projectCodes, superProjects };
+        }) };
+      });
+    },
+    revokeGrant(userid, project) {
+      setStore(s => ({ ...s, users: s.users.map(x => {
+        if (x.userid !== userid) return x;
+        const grants = { ...x.grants }; delete grants[project];
+        return { ...x, grants, projectCodes: x.projectCodes.filter(p => p !== project), superProjects: x.superProjects.filter(p => p !== project) };
+      }) }));
+      toast.push("已撤销授权", "deny");
+    },
+    setSuper(userid, project, val) {
+      setStore(s => ({ ...s, users: s.users.map(x => {
+        if (x.userid !== userid) return x;
+        const superProjects = val ? Array.from(new Set([...x.superProjects, project])) : x.superProjects.filter(p => p !== project);
+        const grants = { ...x.grants }; if (grants[project]) grants[project] = { ...grants[project], super: val };
+        return { ...x, superProjects, grants };
+      }) }));
+      toast.push(val ? "已提升为超管" : "已降级为普通管理员", val ? "ok" : "deny");
+    },
+    addMember(groupCode, userid, project, username) {
+      setStore(s => {
+        const users = s.users.map(x => {
+          if (x.userid !== userid) return x;
+          if (x.groupCodes.includes(groupCode)) return x;
+          const g = s.groups.find(gg => gg.groupCode === groupCode);
+          const projectCodes = Array.from(new Set([...x.projectCodes, project]));
+          const grants = { ...x.grants }; if (!grants[project]) grants[project] = { groups: [], super: false };
+          grants[project] = { ...grants[project], groups: Array.from(new Set([...(grants[project].groups||[]), groupCode])) };
+          return { ...x, groupCodes: [...x.groupCodes, groupCode], groupNames: [...x.groupNames, g ? g.groupName : groupCode], projectCodes, grants };
+        });
+        const groups = s.groups.map(g => g.groupCode === groupCode ? { ...g, members: g.members + 1 } : g);
+        return { ...s, users, groups };
+      });
+      toast.push("已加入权限组");
+    },
+    removeMember(groupCode, userid) {
+      setStore(s => {
+        const users = s.users.map(x => x.userid === userid ? { ...x, groupCodes: x.groupCodes.filter(c => c !== groupCode) } : x);
+        const groups = s.groups.map(g => g.groupCode === groupCode ? { ...g, members: Math.max(0, g.members - 1) } : g);
+        return { ...s, users, groups };
+      });
+      toast.push("已移出权限组", "deny");
+    },
+    createGroup(g) {
+      setStore(s => ({ ...s, groups: [{ ...g, members: 0 }, ...s.groups] }));
+      toast.push("已创建权限组");
+    },
+    setGroupStatus(groupCode, status) {
+      setStore(s => ({ ...s, groups: s.groups.map(g => g.groupCode === groupCode ? { ...g, status } : g) }));
+      toast.push(status === "Disabled" ? "已禁用权限组" : "已启用权限组");
+    },
+    setRuleStatus(project, ruleCode, status) {
+      const walk = (nodes) => nodes.map(n => ({ ...n, status: n.ruleCode === ruleCode ? status : n.status, children: n.children ? walk(n.children) : n.children }));
+      setStore(s => ({ ...s, ruleTree: { ...s.ruleTree, [project]: walk(s.ruleTree[project]) } }));
+      toast.push("已更新规则状态");
+    },
+    addApiMap(rec) { setStore(s => ({ ...s, apiMap: [{ ...rec, id: "3fa85f64-" + Math.random().toString().slice(2,6), status: "Active" }, ...s.apiMap] })); toast.push("已新增 API 映射"); },
+    updateApiMap(id, patch) { setStore(s => ({ ...s, apiMap: s.apiMap.map(r => r.id === id ? { ...r, ...patch } : r) })); toast.push("已更新 API 映射"); },
+    deleteApiMap(id) { setStore(s => ({ ...s, apiMap: s.apiMap.filter(r => r.id !== id) })); toast.push("已删除 API 映射", "deny"); },
+  }), []);
+
+  const ctx = { store, actions, go, scenario, intent, setIntent, toast };
+  const [topAction, setTopAction] = useS(null);
+
+  let body, action = null;
+  if (page === "dashboard") body = <Dashboard data={store} go={go} scenario={scenario} />;
+  else if (page === "users" && window.UsersPage) { body = <UsersPage ctx={ctx} setAction={setTopAction} />; action = topAction; }
+  else if (page === "authorization" && window.AuthorizationPage) { body = <AuthorizationPage ctx={ctx} setAction={setTopAction} />; action = topAction; }
+  else if (page === "groups" && window.GroupsPage) { body = <GroupsPage ctx={ctx} setAction={setTopAction} />; action = topAction; }
+  else if (page === "menus" && window.MenusPage) { body = <MenusPage ctx={ctx} setAction={setTopAction} />; action = topAction; }
+  else if (page === "audit" && window.AuditPage) { body = <AuditPage ctx={ctx} />; }
+  else if (page === "concept" && window.ConceptPage) { body = <ConceptPage ctx={ctx} go={go} />; }
+  else if (page === "apimap" && window.ApiMapPage) { body = <ApiMapPage ctx={ctx} go={go} />; }
+  else body = <Stub name={(PAGE_TITLES[page]||[""])[0]} />;
+
+  return (
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+      <Sidebar page={page} setPage={go} />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, background: "var(--parchment)" }}>
+        <TopBar page={page} action={action} />
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          <div style={{ maxWidth: 1240, margin: "0 auto", padding: "30px 32px 80px" }} key={page} className="anim-fade">
+            {body}
+          </div>
+        </div>
+      </div>
+      {toast.node}
+    </div>
+  );
+}
+
+window.App = App;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(<App />);
+</script>
+</body>
+</html>

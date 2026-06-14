@@ -1,0 +1,966 @@
+Error: [31m  Failed to scan for dependencies from entries:
+  E:/Web/lnbox/web/index.html
+
+  [39m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mENOENT: no such file or directory, open 'E:\Web\lnbox\web\src\layouts\frontend\components\header.vue'[0m [1m[35m[plugin vite:dep-scan][0m
+
+    script:E:/Web/lnbox/web/src/views/frontend/index.vue?id=0:15:7:
+[37m      15 │ import [32m'/@/layouts/frontend/components/header.vue'[37m
+         ╵        [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  This error came from the "onLoad" callback registered here:
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:1292:20:
+[37m      1292 │       let promise = [32m[37msetup({
+           ╵                     [32m^[0m
+
+    at setup (file:///E:/Web/lnbox/web/node_modules/vite/dist/node/chunks/dep-827b23df.js:44657:19)
+    at handlePlugins (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:1292:21)
+    at buildOrContextImpl (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:978:5)
+    at Object.buildOrContext (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:786:5)
+    at E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:2186:68
+    at new Promise (<anonymous>)
+    at Object.context (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:2186:27)
+    at Object.context (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:2026:58)
+    at prepareEsbuildScanner (file:///E:/Web/lnbox/web/node_modules/vite/dist/node/chunks/dep-827b23df.js:44535:26)
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mENOENT: no such file or directory, open 'E:\Web\lnbox\web\src\layouts\frontend\components\footer.vue'[0m [1m[35m[plugin vite:dep-scan][0m
+
+    script:E:/Web/lnbox/web/src/views/frontend/index.vue?id=0:16:7:
+[37m      16 │ import [32m'/@/layouts/frontend/components/footer.vue'[37m
+         ╵        [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  This error came from the "onLoad" callback registered here:
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:1292:20:
+[37m      1292 │       let promise = [32m[37msetup({
+           ╵                     [32m^[0m
+
+    at setup (file:///E:/Web/lnbox/web/node_modules/vite/dist/node/chunks/dep-827b23df.js:44657:19)
+    at handlePlugins (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:1292:21)
+    at buildOrContextImpl (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:978:5)
+    at Object.buildOrContext (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:786:5)
+    at E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:2186:68
+    at new Promise (<anonymous>)
+    at Object.context (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:2186:27)
+    at Object.context (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:2026:58)
+    at prepareEsbuildScanner (file:///E:/Web/lnbox/web/node_modules/vite/dist/node/chunks/dep-827b23df.js:44535:26)
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mENOENT: no such file or directory, open 'E:\Web\lnbox\web\src\layouts\frontend\user.vue'[0m [1m[35m[plugin vite:dep-scan][0m
+
+    src/router/static/memberCenterBase.ts:14:28:
+[37m      14 │     component: () => import([32m'/@/layouts/frontend/user.vue'[37m),
+         ╵                             [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  This error came from the "onLoad" callback registered here:
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:1292:20:
+[37m      1292 │       let promise = [32m[37msetup({
+           ╵                     [32m^[0m
+
+    at setup (file:///E:/Web/lnbox/web/node_modules/vite/dist/node/chunks/dep-827b23df.js:44657:19)
+    at handlePlugins (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:1292:21)
+    at buildOrContextImpl (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:978:5)
+    at Object.buildOrContext (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:786:5)
+    at E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:2186:68
+    at new Promise (<anonymous>)
+    at Object.context (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:2186:27)
+    at Object.context (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:2026:58)
+    at prepareEsbuildScanner (file:///E:/Web/lnbox/web/node_modules/vite/dist/node/chunks/dep-827b23df.js:44535:26)
+
+
+    at failureErrorWithLog (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:1649:15)
+    at E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:1058:25
+    at runOnEndCallbacks (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:1484:45)
+    at buildResponseToResult (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:1056:7)
+    at E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:1068:9
+    at new Promise (<anonymous>)
+    at requestCallbacks.on-end (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:1067:54)
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:729:19)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+X [ERROR] The build was canceled
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/extension-table/dist/index.js:3:251:
+      3 │ ...fixTables, columnResizing, tableEditing } from '@tiptap/pm/tables';
+        ╵                                                   ~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/core/dist/index.js:3:23:
+      3 │ import { keymap } from '@tiptap/pm/keymap';
+        ╵                        ~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/extension-focus/dist/index.js:3:42:
+      3 │ import { DecorationSet, Decoration } from '@tiptap/pm/view';
+        ╵                                           ~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/extension-link/dist/index.js:3:34:
+      3 │ import { Plugin, PluginKey } from '@tiptap/pm/state';
+        ╵                                   ~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/extension-mention/dist/index.js:3:23:
+      3 │ import Suggestion from '@tiptap/suggestion';
+        ╵                        ~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:3:21:
+      3 │ import { Bold } from '@tiptap/extension-bold';
+        ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/extension-code-block-lowlight/dist/index.js:3:34:
+      3 │ import { Plugin, PluginKey } from '@tiptap/pm/state';
+        ╵                                   ~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/viewer/dist/umo-viewer.js:1:7:
+      1 │ import "./style.css";
+        ╵        ~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/mermaid/dist/mermaid.core.mjs:677:46:
+      677 │ import { compile, serialize, stringify } from "stylis";
+          ╵                                               ~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/vue-3/dist/index.js:5:35:
+      5 │ import { FloatingMenuPlugin } from '@tiptap/extension-floating-menu';
+        ╵                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@vueuse/core/index.mjs:3:327:
+      3 │ ...rrentScope, set, del, isReadonly, onBeforeUpdate } from 'vue-demi';
+        ╵                                                            ~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@imgly/background-removal/dist/index.mjs:5745:25:
+      5745 │ import * as ort_gpu from "onnxruntime-web/webgpu";
+           ╵                          ~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/core/dist/index.js:4:82:
+      4 │ ...agment, Node as Node$1, DOMParser, Slice } from '@tiptap/pm/model';
+        ╵                                                    ~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:4:27:
+      4 │ import { BulletList } from '@tiptap/extension-bullet-list';
+        ╵                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/extension-code-block-lowlight/dist/index.js:4:42:
+      4 │ import { Decoration, DecorationSet } from '@tiptap/pm/view';
+        ╵                                           ~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/viewer/dist/umo-viewer.js:2:20:
+      2 │ import * as I0 from "vue";
+        ╵                     ~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/mermaid/dist/mermaid.core.mjs:678:22:
+      678 │ import DOMPurify from "dompurify";
+          ╵                       ~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@imgly/background-removal/dist/index.mjs:5960:18:
+      5960 │ import { z } from "zod";
+           ╵                   ~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/viewer/dist/umo-viewer.js:4:24:
+      4 │ import { z as Xe } from "zod";
+        ╵                         ~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/core/dist/index.js:5:114:
+      5 │ ...orm, canSplit, canJoin, findWrapping } from '@tiptap/pm/transform';
+        ╵                                                ~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:5:21:
+      5 │ import { Code } from '@tiptap/extension-code';
+        ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/mermaid/dist/mermaid.core.mjs:679:20:
+      679 │ import isEmpty from "lodash-es/isEmpty.js";
+          ╵                     ~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/viewer/dist/umo-viewer.js:5:77:
+      5 │ ...Ig, useFullscreen as R0, useDebounceFn as V0 } from "@vueuse/core";
+        ╵                                                        ~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/core/dist/index.js:6:665:
+      6 │ ...t$1, setBlockType, wrapIn as wrapIn$1 } from '@tiptap/pm/commands';
+        ╵                                                 ~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:6:26:
+      6 │ import { CodeBlock } from '@tiptap/extension-code-block';
+        ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/viewer/dist/umo-viewer.js:6:43:
+      6 │ import { usePDF as z0, VuePDF as Ng } from "@tato30/vue-pdf";
+        ╵                                            ~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/core/dist/index.js:7:107:
+      7 │ ...Item$1, wrapInList as wrapInList$1 } from '@tiptap/pm/schema-list';
+        ╵                                              ~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:7:25:
+      7 │ import { Document } from '@tiptap/extension-document';
+        ╵                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/viewer/dist/umo-viewer.js:7:20:
+      7 │ import * as U0 from "echarts";
+        ╵                     ~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:8:27:
+      8 │ import { Dropcursor } from '@tiptap/extension-dropcursor';
+        ╵                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/viewer/dist/umo-viewer.js:8:15:
+      8 │ import H0 from "plyr";
+        ╵                ~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:9:26:
+      9 │ import { Gapcursor } from '@tiptap/extension-gapcursor';
+        ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:10:26:
+      10 │ import { HardBreak } from '@tiptap/extension-hard-break';
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:11:24:
+      11 │ import { Heading } from '@tiptap/extension-heading';
+         ╵                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:12:24:
+      12 │ import { History } from '@tiptap/extension-history';
+         ╵                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:13:31:
+      13 │ import { HorizontalRule } from '@tiptap/extension-horizontal-rule';
+         ╵                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:14:23:
+      14 │ import { Italic } from '@tiptap/extension-italic';
+         ╵                        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:15:25:
+      15 │ import { ListItem } from '@tiptap/extension-list-item';
+         ╵                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:16:28:
+      16 │ import { OrderedList } from '@tiptap/extension-ordered-list';
+         ╵                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:17:26:
+      17 │ import { Paragraph } from '@tiptap/extension-paragraph';
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:18:23:
+      18 │ import { Strike } from '@tiptap/extension-strike';
+         ╵                        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+X [ERROR] Invalid command: on-resolve [plugin JavaScript plugins]
+
+    node_modules/vite/node_modules/esbuild/lib/main.js:734:12:
+      734 │       throw new Error(`Invalid command: ` + request.command);
+          ╵             ^
+
+    at handleRequest (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:734:13)
+    at handleIncomingPacket (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:755:7)
+    at Socket.readFromStdout (E:\Web\lnbox\web\node_modules\vite\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
+
+  The plugin "JavaScript plugins" was triggered by this import
+
+    node_modules/@umoteam/editor/node_modules/@tiptap/starter-kit/dist/index.js:19:21:
+      19 │ import { Text } from '@tiptap/extension-text';
+         ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~
+

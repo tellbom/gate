@@ -1,0 +1,136 @@
+/* ============================================================
+   统一权限中心 — Apple-language design tokens
+   ============================================================ */
+:root {
+  /* Accent (single brand interactive color) */
+  --blue: #0066cc;
+  --blue-focus: #0071e3;
+  --blue-on-dark: #2997ff;
+  --blue-wash: #eaf2fb;
+  --blue-wash-strong: #dbeafd;
+
+  /* Ink / text */
+  --ink: #1d1d1f;
+  --ink-80: #333333;
+  --ink-60: #5c5c60;
+  --ink-48: #7a7a7a;
+
+  /* Surfaces */
+  --canvas: #ffffff;
+  --parchment: #f5f5f7;
+  --pearl: #fafafc;
+  --tile-dark: #272729;
+  --tile-dark-2: #2a2a2c;
+
+  /* Lines */
+  --hairline: #e0e0e0;
+  --divider: #f0f0f0;
+
+  /* Functional status tones (kept low-chroma, never compete with blue) */
+  --ok: #1a7f47;
+  --ok-wash: #e7f3ec;
+  --warn: #9a6a00;
+  --warn-wash: #f6efdc;
+  --deny: #b3261e;
+  --deny-wash: #fbeae9;
+  --super: #6b4ea8;
+  --super-wash: #efeaf7;
+
+  /* Radii */
+  --r-xs: 5px;
+  --r-sm: 8px;
+  --r-md: 11px;
+  --r-lg: 18px;
+  --r-pill: 9999px;
+
+  /* Spacing scale */
+  --s-xxs: 4px;
+  --s-xs: 8px;
+  --s-sm: 12px;
+  --s-md: 17px;
+  --s-lg: 24px;
+  --s-xl: 32px;
+  --s-xxl: 48px;
+
+  /* Fonts */
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+
+  /* The one allowed elevation — only on floating chrome (drawers, modals, sticky) */
+  --float-shadow: 0 20px 60px rgba(0,0,0,0.16), 0 4px 12px rgba(0,0,0,0.06);
+  --rest-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-text);
+  color: var(--ink);
+  background: var(--parchment);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-size: 15px;
+  line-height: 1.47;
+  letter-spacing: -0.01em;
+}
+#root { height: 100vh; overflow: hidden; }
+
+/* Typography helpers */
+.t-hero { font-family: var(--font-display); font-size: 44px; font-weight: 600; line-height: 1.07; letter-spacing: -0.02em; }
+.t-display { font-family: var(--font-display); font-size: 32px; font-weight: 600; line-height: 1.1; letter-spacing: -0.018em; }
+.t-title { font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1.16; letter-spacing: -0.015em; }
+.t-section { font-family: var(--font-display); font-size: 19px; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; }
+.t-lead { font-family: var(--font-display); font-size: 21px; font-weight: 400; line-height: 1.3; letter-spacing: -0.005em; color: var(--ink-60); }
+.t-body { font-size: 15px; font-weight: 400; line-height: 1.5; }
+.t-body-strong { font-size: 15px; font-weight: 600; letter-spacing: -0.012em; }
+.t-cap { font-size: 13px; font-weight: 400; color: var(--ink-48); letter-spacing: -0.006em; }
+.t-cap-strong { font-size: 13px; font-weight: 600; color: var(--ink-60); letter-spacing: -0.006em; }
+.t-micro { font-size: 11px; font-weight: 500; letter-spacing: 0.02em; }
+.t-mono { font-family: "SF Mono", ui-monospace, "JetBrains Mono", "Menlo", monospace; font-size: 12.5px; letter-spacing: -0.01em; }
+
+.muted { color: var(--ink-48); }
+.muted-60 { color: var(--ink-60); }
+
+/* Scrollbars — quiet */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 9999px; border: 3px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: #bdbdc2; background-clip: content-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Focus ring */
+button:focus-visible, a:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--blue-focus);
+  outline-offset: 2px;
+}
+
+/* Buttons */
+.btn { font-family: var(--font-text); font-size: 14px; font-weight: 400; letter-spacing: -0.01em; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; transition: transform .08s ease, background .15s ease, opacity .15s ease; white-space: nowrap; }
+.btn:active { transform: scale(0.96); }
+.btn[disabled] { opacity: .4; cursor: not-allowed; }
+.btn-primary { background: var(--blue); color: #fff; border-radius: var(--r-pill); padding: 9px 20px; }
+.btn-primary:hover { background: #0a6ed6; }
+.btn-ghost { background: transparent; color: var(--blue); border: 1px solid var(--blue); border-radius: var(--r-pill); padding: 8px 19px; }
+.btn-ghost:hover { background: var(--blue-wash); }
+.btn-neutral { background: var(--canvas); color: var(--ink); border: 1px solid var(--hairline); border-radius: var(--r-pill); padding: 8px 18px; }
+.btn-neutral:hover { background: var(--pearl); border-color: #cfcfd4; }
+.btn-dark { background: var(--ink); color: #fff; border-radius: var(--r-sm); padding: 7px 15px; font-size: 13px; }
+.btn-danger { background: transparent; color: var(--deny); border: 1px solid #e4b6b3; border-radius: var(--r-pill); padding: 8px 18px; }
+.btn-danger:hover { background: var(--deny-wash); }
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+.btn-text { background: transparent; color: var(--blue); padding: 4px 6px; border-radius: var(--r-xs); }
+.btn-text:hover { background: var(--blue-wash); }
+
+/* Card */
+.card { background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-lg); }
+
+/* Hairline utility */
+.hr { height: 1px; background: var(--hairline); border: none; margin: 0; }
+
+/* Fade/slide animations */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideInRight { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+.anim-fade { animation: fadeUp .4s cubic-bezier(.2,.7,.2,1) both; }
+
+input, select, textarea { font-family: var(--font-text); }

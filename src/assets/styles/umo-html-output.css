@@ -1,0 +1,403 @@
+/**
+ * umo-html-output.css
+ *
+ * UMO Editor 富文本输出的全局渲染样式。
+ * 在需要渲染 UMO 输出内容的容器上加 class="umo-html-body" 即可。
+ *
+ *   <div class="umo-html-body" v-html="content" />
+ *
+ * ★ 在 main.js 全局引入一次，所有组件共享，不得在业务组件中重复引入或覆盖：
+ *   import '/@/assets/styles/umo-html-output.css'
+ *
+ * ★ 附件节点和视频节点需配合 DOM 补丁工具一起使用：
+ *   import { patchUmoHtml } from '/@/assets/styles/umo-html-patch.js'
+ *
+ *   const contentRef = ref(null)
+ *   watch(() => content, () => nextTick(() => patchUmoHtml(contentRef.value)), { immediate: true })
+ *
+ * 覆盖范围：
+ *   - 基础排版（段落、标题、列表、引用块、分割线）
+ *   - 行内格式（粗体、斜体、下划线、删除线、行内代码、高亮）
+ *   - 代码块
+ *   - 图片
+ *   - 表格
+ *   - 附件卡片（由 umo-html-patch.js 生成的 .umo-att-card 结构）
+ *   - 视频（原生 <video> 标签 + data-type="video" 容器）
+ *   - 超链接
+ *   - 任务列表
+ */
+
+/* ═══════════════════════════════════════════════════
+   容器根
+═══════════════════════════════════════════════════ */
+.umo-html-body {
+  --umo-font-size:    15px;
+  --umo-line-height:  1.75;
+  --umo-color-text:   #1d2129;
+  --umo-color-sub:    #4e5969;
+  --umo-color-muted:  #86909c;
+  --umo-color-border: #e4e7ed;
+  --umo-color-bg:     #f4f5f7;
+  --umo-color-link:   #3370ff;
+  --umo-color-blue:   #3370ff;
+  --umo-color-blue-lt:#edf2ff;
+  --umo-color-code-bg:#f0f2f5;
+  --umo-color-red:    #c62f2f;
+  --umo-radius:       8px;
+
+  font-size:    var(--umo-font-size);
+  line-height:  var(--umo-line-height);
+  color:        var(--umo-color-text);
+  word-break:   break-word;
+  overflow-wrap: break-word;
+  font-family:  -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════
+   段落
+═══════════════════════════════════════════════════ */
+.umo-html-body p {
+  margin: 0 0 0.75em;
+  min-height: 1em;
+}
+.umo-html-body p:last-child { margin-bottom: 0; }
+
+/* ═══════════════════════════════════════════════════
+   标题
+═══════════════════════════════════════════════════ */
+.umo-html-body h1,
+.umo-html-body h2,
+.umo-html-body h3,
+.umo-html-body h4,
+.umo-html-body h5,
+.umo-html-body h6 {
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 1.2em 0 0.5em;
+  color: var(--umo-color-text);
+}
+.umo-html-body h1 { font-size: 1.75em; }
+.umo-html-body h2 { font-size: 1.45em; }
+.umo-html-body h3 { font-size: 1.2em;  }
+.umo-html-body h4 { font-size: 1.05em; }
+.umo-html-body h5,
+.umo-html-body h6 { font-size: 1em;    }
+
+/* ═══════════════════════════════════════════════════
+   行内格式
+═══════════════════════════════════════════════════ */
+.umo-html-body strong,
+.umo-html-body b { font-weight: 600; }
+
+.umo-html-body em,
+.umo-html-body i { font-style: italic; }
+
+.umo-html-body u { text-decoration: underline; }
+
+.umo-html-body s,
+.umo-html-body del { text-decoration: line-through; color: var(--umo-color-muted); }
+
+.umo-html-body mark {
+  background: #fff3b0;
+  color: inherit;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.umo-html-body code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
+  font-size: 0.875em;
+  background: var(--umo-color-code-bg);
+  color: var(--umo-color-red);
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--umo-color-border);
+}
+
+/* ═══════════════════════════════════════════════════
+   代码块
+═══════════════════════════════════════════════════ */
+.umo-html-body pre {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border-radius: var(--umo-radius);
+  padding: 16px 20px;
+  margin: 1em 0;
+  overflow-x: auto;
+  font-size: 0.875em;
+  line-height: 1.6;
+}
+.umo-html-body pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+/* ═══════════════════════════════════════════════════
+   引用块
+═══════════════════════════════════════════════════ */
+.umo-html-body blockquote {
+  border-left: 4px solid var(--umo-color-red);
+  margin: 1em 0;
+  padding: 8px 16px;
+  background: #fff8f8;
+  border-radius: 0 var(--umo-radius) var(--umo-radius) 0;
+  color: var(--umo-color-sub);
+}
+.umo-html-body blockquote p { margin: 0; }
+
+/* ═══════════════════════════════════════════════════
+   列表
+═══════════════════════════════════════════════════ */
+.umo-html-body ul,
+.umo-html-body ol {
+  margin: 0.5em 0 0.75em;
+  padding-left: 1.75em;
+}
+.umo-html-body li { margin: 0.25em 0; }
+.umo-html-body ul { list-style: disc; }
+.umo-html-body ol { list-style: decimal; }
+.umo-html-body ul ul,
+.umo-html-body ol ol { margin: 0.2em 0; }
+
+/* 任务列表 */
+.umo-html-body ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0.25em;
+}
+.umo-html-body ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.umo-html-body ul[data-type="taskList"] li input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: var(--umo-color-red);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════
+   分割线
+═══════════════════════════════════════════════════ */
+.umo-html-body hr {
+  border: none;
+  border-top: 1px solid var(--umo-color-border);
+  margin: 1.5em 0;
+}
+
+/* ═══════════════════════════════════════════════════
+   超链接
+═══════════════════════════════════════════════════ */
+.umo-html-body a {
+  color: var(--umo-color-link);
+  text-decoration: none;
+}
+.umo-html-body a:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+/* ═══════════════════════════════════════════════════
+   图片
+═══════════════════════════════════════════════════ */
+.umo-html-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--umo-radius);
+  display: block;
+  margin: 0.5em 0;
+}
+
+/* ═══════════════════════════════════════════════════
+   表格
+═══════════════════════════════════════════════════ */
+.umo-html-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.9em;
+  border-radius: var(--umo-radius);
+  overflow: hidden;
+  border: 1px solid var(--umo-color-border);
+}
+.umo-html-body th,
+.umo-html-body td {
+  padding: 8px 12px;
+  border: 1px solid var(--umo-color-border);
+  text-align: left;
+  vertical-align: top;
+}
+.umo-html-body th {
+  background: var(--umo-color-bg);
+  font-weight: 600;
+  color: var(--umo-color-sub);
+}
+.umo-html-body tr:nth-child(even) td { background: #fafbfc; }
+
+/* ═══════════════════════════════════════════════════
+   附件节点
+   UMO 序列化输出：
+     <div data-type="attachment" data-url="..." data-name="..." data-size="...">
+   补丁工具 umo-html-patch.js 会将其替换为：
+     <a class="umo-att-card" href="..." download="...">
+       <span class="umo-att-icon-wrap">...</span>
+       <span class="umo-att-info">
+         <span class="umo-att-name">...</span>
+         <span class="umo-att-size">...</span>
+       </span>
+       <span class="umo-att-dl">...</span>
+     </a>
+   以下样式对应该结构，不得在业务组件中重复定义。
+═══════════════════════════════════════════════════ */
+
+/* 原始 div 在补丁执行前隐藏，避免闪烁 */
+.umo-html-body [data-type="attachment"] {
+  display: none;
+}
+
+/* 附件卡片 */
+.umo-html-body .umo-att-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  margin: 6px 0;
+  background: var(--umo-color-blue-lt);
+  border: 1px solid #c5d8ff;
+  border-radius: var(--umo-radius);
+  text-decoration: none;
+  color: var(--umo-color-text);
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.umo-html-body .umo-att-card:hover {
+  background: #d8e8ff;
+  box-shadow: 0 2px 8px rgba(51, 112, 255, 0.12);
+}
+
+/* 文件图标容器 */
+.umo-html-body .umo-att-icon-wrap {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--umo-color-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.umo-html-body .umo-att-icon-wrap svg {
+  width: 18px;
+  height: 18px;
+  color: #fff;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* 文件信息 */
+.umo-html-body .umo-att-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.umo-html-body .umo-att-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--umo-color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.umo-html-body .umo-att-size {
+  font-size: 11px;
+  color: var(--umo-color-muted);
+}
+
+/* 下载按钮 */
+.umo-html-body .umo-att-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 5px 12px;
+  line-height: 1;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--umo-color-blue);
+  background: #fff;
+  border: 1px solid #c5d8ff;
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s;
+}
+.umo-html-body .umo-att-card:hover .umo-att-dl {
+  background: #d0e2ff;
+  border-color: var(--umo-color-blue);
+}
+.umo-html-body .umo-att-dl svg {
+  width: 13px;
+  height: 13px;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════
+   视频节点
+   UMO 序列化输出（形式 A）：
+     <div data-type="video" data-src="..."></div>
+   补丁工具 umo-html-patch.js 会向其内部注入 <video controls>。
+   形式 B：直接输出 <video src="..."> 标签。
+═══════════════════════════════════════════════════ */
+
+/* 视频容器（形式 A） */
+.umo-html-body [data-type="video"] {
+  position: relative;
+  width: 100%;
+  margin: 10px 0;
+  background: #000;
+  border-radius: var(--umo-radius);
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 未注入前的占位播放图标 */
+.umo-html-body [data-type="video"]:not(:has(video))::before {
+  content: '';
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background:
+    rgba(255, 255, 255, 0.15)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E")
+    center / 28px no-repeat;
+  display: block;
+}
+
+/* 注入后的 <video>（形式 A 注入 + 形式 B 直接输出均适用） */
+.umo-html-body video,
+.umo-html-body [data-type="video"] video {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--umo-radius);
+  display: block;
+  background: #000;
+}
+
+/* ═══════════════════════════════════════════════════
+   空内容占位
+═══════════════════════════════════════════════════ */
+.umo-html-body:empty::before {
+  content: '暂无内容';
+  color: var(--umo-color-muted);
+  font-size: 13px;
+}
