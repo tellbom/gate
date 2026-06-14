@@ -13,7 +13,7 @@ export default [
 
     // 忽略规则
     {
-        ignores: ['node_modules', 'dist', 'public'],
+        ignores: ['node_modules', 'dist', 'build', 'coverage', 'public', '*.min.js'],
     },
 
     // 全局变量

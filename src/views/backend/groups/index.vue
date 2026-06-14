@@ -2,12 +2,12 @@
     <main class="groups-page">
         <div class="page-head">
             <div><h1>权限组</h1><p>成员与权限码管理</p></div>
-            <el-button @click="loadGroups">刷新</el-button>
+            <el-button @click="loadPage">刷新</el-button>
         </div>
         <div class="toolbar">
-            <el-input v-model="query.keyword" clearable placeholder="搜索组名 / groupCode" @keyup.enter="loadGroups" />
-            <el-select v-model="query.project" clearable placeholder="全部系统" @change="loadGroups"><el-option v-for="p in projects" :key="p" :label="p" :value="p" /></el-select>
-            <el-button @click="loadGroups">筛选</el-button>
+            <el-input v-model="query.keyword" clearable placeholder="搜索组名 / groupCode" @keyup.enter="loadPage" />
+            <el-select v-model="query.project" clearable placeholder="全部系统" @change="loadPage"><el-option v-for="p in projects" :key="p" :label="p" :value="p" /></el-select>
+            <el-button @click="loadPage">筛选</el-button>
         </div>
         <div class="card">
             <el-table v-loading="loading" :data="groups" row-key="groupCode" @row-click="openDetail">
@@ -17,30 +17,48 @@
                 <el-table-column label="权限码" min-width="320"><template #default="{ row }"><div class="chips"><code v-for="code in (row.permissionCodes || []).slice(0, 4)" :key="code">{{ code }}</code><span v-if="(row.permissionCodes || []).length > 4">+{{ row.permissionCodes.length - 4 }}</span></div></template></el-table-column>
             </el-table>
         </div>
-        <GroupDetailDrawer v-model="drawerOpen" :group="selectedGroup" />
+        <GroupDetailDrawer
+            v-model="drawerOpen"
+            :group="selectedGroup"
+            :users="users"
+            @refresh="loadPage"
+        />
     </main>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import GroupDetailDrawer from './GroupDetailDrawer.vue'
-import { getGlobalGroups, getGlobalProjects, type GroupItem } from '/@/api/backend/rbac'
+import {
+    getGlobalGroups,
+    getGlobalProjects,
+    getGlobalUsers,
+    type AdminItem,
+    type GroupItem,
+} from '/@/api/backend/rbac'
 
 defineOptions({ name: 'backend/groups' })
 const loading = ref(false)
 const projects = ref<string[]>([])
 const groups = ref<GroupItem[]>([])
+const users = ref<AdminItem[]>([])
 const selectedGroup = ref<GroupItem | null>(null)
 const drawerOpen = ref(false)
 const query = reactive({ page: 1, pageSize: 20, keyword: '', project: '' })
 
 onMounted(async () => {
     projects.value = (await getGlobalProjects()).list || []
-    await loadGroups()
+    await loadPage()
 })
 async function loadGroups() {
     loading.value = true
     try { groups.value = (await getGlobalGroups(query)).list || [] } finally { loading.value = false }
+}
+async function loadUsers() {
+    users.value = (await getGlobalUsers({ page: 1, pageSize: 200, project: query.project || undefined })).list || []
+}
+async function loadPage() {
+    await Promise.all([loadGroups(), loadUsers()])
 }
 function openDetail(row: GroupItem) { selectedGroup.value = row; drawerOpen.value = true }
 </script>

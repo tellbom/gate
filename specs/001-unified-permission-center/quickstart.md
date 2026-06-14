@@ -14,6 +14,11 @@ npm run build
 npm run dev
 ```
 
+## Current Validation Notes
+- `npm run typecheck` currently fails on pre-existing framework/auth/store typing issues outside the new flat permission-center pages. Examples include `src/components/common/TableSearchBar.vue`, `src/components/ContactSelector.vue`, `src/layouts/backend/components/ContactSelector.vue`, `src/layouts/backend/components/navMenus.vue`, `src/stores/adminInfo.ts`, `src/stores/messageCenter.ts`, and restored framework pages under `src/views/backend/auth/*`.
+- The new `src/views/backend/groups/*` and `src/views/backend/menus/index.vue` changes no longer add typecheck errors after the Element event typing adjustment.
+- `NODE_OPTIONS=--max-old-space-size=8192 npm run build` succeeds.
+
 ## Scenarios
 1. Login and route bootstrap
    - Open `/` or `/login`.
