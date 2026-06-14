@@ -16,13 +16,13 @@ Alternatives considered: Sending `project` in body for scoped endpoints is expli
 Rationale: `/api/global/project/list` returns project codes only. Prototype has `name`, `cn`, user/group/menu counts. The frontend can aggregate counts from existing list endpoints when available; otherwise it labels projects by code and marks unavailable richer names as backend gaps.
 Alternatives considered: Hardcoding names from prototype seed data would create false backend truth.
 
-## Decision: Prototype pages become Vue feature modules under `views/backend/permissionCenter`
-Rationale: Keeping a dedicated module isolates old BuildAdmin pages/styles while letting dynamic route components point to stable Vue files.
-Alternatives considered: Reusing existing `views/backend/auth/*` pages preserves API work but does not match the prototype visual system or full interaction model.
+## Decision: Prototype pages become flat business pages under `src/views/backend`
+Rationale: The project is small and should stay page-oriented. The homepage lives directly in `src/views/backend/dashboard.vue`; business pages live under `src/views/backend/users`, `groups`, `projects`, `menus`, `apiMap`, and `audit`. Page-only components stay in their page directory.
+Alternatives considered: A `permissionCenter` feature module or `features/modules/domains` split would add lookup friction and conflict with the requested flat structure.
 
-## Decision: Apple visual language implemented with local CSS tokens
-Rationale: `DESIGN.md` requires Action Blue, ink, pearl/parchment canvases, restrained chrome, tight typography, and no decorative gradients/orbs. A module-scoped stylesheet avoids old Element Plus table/card defaults from dominating the new pages.
-Alternatives considered: Global rewrite of `src/styles` is higher risk and may break login/layout.
+## Decision: Apple visual language copied from prototype into page-local styles
+Rationale: `DESIGN.md` and the user request require direct prototype visual reproduction. Styles should be copied/adapted from `prototype/pc/theme.css` into the specific page files rather than hidden behind a new abstraction layer.
+Alternatives considered: Global rewrite of `src/styles` is higher risk and may break login/layout; shared component libraries are unnecessary until a component is genuinely reused across multiple pages.
 
 ## Decision: Unsupported prototype content is labeled as backend gap
 Rationale: The user explicitly prohibited virtual APIs and fictional features. The UI contract will mark unsupported project metadata, exact global dashboard aggregates, and any non-documented mutations as gaps.

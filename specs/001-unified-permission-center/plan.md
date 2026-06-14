@@ -76,20 +76,28 @@ src/
 │   └── types/index.ts
 ├── views/backend/
 │   ├── dashboard.vue
-│   └── permissionCenter/
-│       ├── index.vue
-│       ├── users.vue
-│       ├── authorization.vue
-│       ├── groups.vue
-│       ├── menus.vue
-│       ├── apiMap.vue
-│       ├── audit.vue
-│       └── components/
+│   ├── users/
+│   │   ├── index.vue
+│   │   ├── UserDetailDrawer.vue
+│   │   └── UserGrantDialog.vue
+│   ├── groups/
+│   │   ├── index.vue
+│   │   └── GroupDetailDrawer.vue
+│   ├── projects/
+│   │   └── index.vue
+│   ├── menus/
+│   │   ├── index.vue
+│   │   └── ApiMapEditor.vue
+│   ├── apiMap/
+│   │   ├── index.vue
+│   │   └── ApiMapEditor.vue
+│   └── audit/
+│       └── index.vue
 ├── styles/
 └── router/, stores/, utils/
 ```
 
-**Structure Decision**: Keep the existing Vue application and backend shell. Add a dedicated `permissionCenter` feature module and extend the existing RBAC API client with global endpoints/context-aware calls. Leave unrelated legacy pages in place only as non-primary dynamic components to avoid breaking backend menus during migration.
+**Structure Decision**: Keep the existing Vue application and backend shell. Implement the homepage directly in `src/views/backend/dashboard.vue`. Place business pages as flat, business-named directories under `src/views/backend` (`users`, `groups`, `projects`, `menus`, `apiMap`, `audit`). Keep page-only components inside their owning page directory. Do not create `features/`, `modules/`, `domains/`, or an extra `permissionCenter/` layer. `src/views/auth` and framework authentication/authorization pages are foundational framework capability and should not be migrated or refactored by this feature.
 
 ## Complexity Tracking
 

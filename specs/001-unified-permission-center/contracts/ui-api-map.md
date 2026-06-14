@@ -2,20 +2,20 @@
 
 ## Frontend Structure Review
 - Keep: `src/views/backend/login.vue`, `portalLogin.vue`, RBAC bridge/client, `src/router/*`, `src/utils/router.ts`, Pinia stores, backend layout shell, loading route, Element Plus primitives.
-- Replace/isolate: old dashboard and scattered `views/backend/auth/*` visual pages should no longer be the primary permission center UI. Existing logic can be reused behind a new `permissionCenter` module.
+- Replace/isolate: old dashboard visuals should no longer be the primary permission center UI. Framework auth/authorization pages under `src/views/auth` are foundational capability and are not part of this feature's migration scope.
 - Risk: dynamic route components are supplied by `/api/admin/index`; backend menu records must point to the new Vue component paths or the UI will not be reachable.
 
 ## Prototype Page to Vue Page Mapping
 | Prototype | Target Vue view | Notes |
 | --- | --- | --- |
-| `dashboard.jsx` | `src/views/backend/dashboard.vue` or `permissionCenter/dashboard.vue` | Project gallery, stats ribbon, recent activity. |
-| `users.jsx` | `permissionCenter/users.vue` | Cross-project user list and detail drawer. |
-| `authorization.jsx` | `permissionCenter/authorization.vue` | User-centric and project-centric grant workspaces. |
-| `groups.jsx` | `permissionCenter/groups.vue` | Group tree/list, permission chips, member actions. |
-| `menus.jsx` | `permissionCenter/menus.vue` | Rule/menu tree and API-map panel/tab. |
-| `audit.jsx` | `permissionCenter/audit.vue` | Audit logs and permission view. |
+| `dashboard.jsx` | `src/views/backend/dashboard.vue` | Project gallery, stats ribbon, recent activity. |
+| `users.jsx` | `src/views/backend/users/index.vue` | Cross-project user list and detail drawer. |
+| `authorization.jsx` | `src/views/backend/users/UserGrantDialog.vue` plus `users/index.vue` | User-centric grant workflow stays with the user page unless backend menu requires a separate route. |
+| `groups.jsx` | `src/views/backend/groups/index.vue` | Group tree/list, permission chips, member actions. |
+| `menus.jsx` | `src/views/backend/menus/index.vue` and `src/views/backend/apiMap/index.vue` | Rule/menu management and API-map management are flat backend pages. |
+| `audit.jsx` | `src/views/backend/audit/index.vue` | Audit logs and permission view. |
 | `concept.jsx` / `apimap` | Documentation/reference panel inside dashboard or audit | Do not expose fictional feature pages unless RBAC menu provides them. |
-| `components.jsx` / `theme.css` | `permissionCenter/components` + `permission-center.scss` | Recreate reusable visual primitives in Vue/CSS. |
+| `components.jsx` / `theme.css` | Page-local `<style scoped>` and page-owned components | Copy visual primitives only where needed; do not introduce a shared component layer unless reuse becomes real. |
 
 ## Page to API Mapping
 | Page | Reads | Writes |
