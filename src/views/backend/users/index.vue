@@ -276,6 +276,25 @@
       custom-class="pc-contact-dialog"
       :close-on-click-modal="false"
     >
+      <div class="add-grant-panel">
+        <div>
+          <div class="pc-t-body-strong" style="font-size:14px">选择授权项目</div>
+          <div class="pc-t-cap" style="margin-top:2px">必须选择一个或多个 project，人员确认后只授权到这些项目。</div>
+        </div>
+        <el-select
+          v-model="addGrantProjects"
+          multiple
+          filterable
+          placeholder="请选择授权 project"
+          style="width:100%"
+        >
+          <el-option v-for="p in projects" :key="p" :label="p" :value="p" />
+        </el-select>
+        <label class="add-grant-super">
+          <el-switch v-model="addGrantAsSuper" />
+          <span>以超管身份授权</span>
+        </label>
+      </div>
       <ContactSelector
         class="pc-contact-selector-fit"
         :org-list="MOCK_ORGS"
@@ -335,7 +354,7 @@ import RbacEmptyState   from '/@/components/rbac/RbacEmptyState.vue'
 import RbacApiSource    from '/@/components/rbac/RbacApiSource.vue'
 import {
   getGlobalUsers, getGlobalProjects, updateGlobalUserStatus,
-  revokeGlobalUserProject, toggleGlobalUserProjectSuper, deleteGlobalUser,
+  grantGlobalUserProjects, revokeGlobalUserProject, toggleGlobalUserProjectSuper, deleteGlobalUser,
   searchAuditLogs,
   type AdminItem, type AuditLogItem,
 } from '/@/api/backend/rbac'
@@ -385,6 +404,8 @@ const auditLoading  = ref(false)
 
 /* ── 新增 dialog ── */
 const addDialogVisible = ref(false)
+const addGrantProjects = ref<string[]>([])
+const addGrantAsSuper  = ref(false)
 
 /* ── 超管确认 dialog ── */
 const superConfirmVisible = ref(false)
@@ -530,18 +551,28 @@ async function deleteAccount() {
 
 /* ── 新增账号 ── */
 function openAddDialog() {
+  addGrantProjects.value = []
+  addGrantAsSuper.value = false
   addDialogVisible.value = true
 }
 
 async function onContactConfirm(users: Array<{ workNo: string; name: string }>) {
-  addDialogVisible.value = false
   if (!users.length) return
+  if (addGrantProjects.value.length === 0) {
+    ElMessage.warning('请先选择要授权的 project')
+    return
+  }
+  const targetProjects = [...addGrantProjects.value]
+  addDialogVisible.value = false
   let successCount = 0
   for (const u of users) {
     try {
       // POST /api/admin — 仅当前 X-Project（__global__），新增管理员到全局
-      const { createAdmin } = await import('/@/api/backend/rbac/admin')
-      await createAdmin({ userid: u.workNo, username: u.name, groupCode: [] })
+      await grantGlobalUserProjects(u.workNo, {
+        username: u.name,
+        targetProjects,
+        isSuper: addGrantAsSuper.value ? true : undefined,
+      })
       successCount++
     } catch {
       ElMessage.warning(`${u.name}（${u.workNo}）创建失败，可能已存在`)
@@ -576,9 +607,27 @@ function timeAgo(iso: string) {
   overflow: hidden;
 }
 .pc-contact-selector-fit {
-  height: calc(92vh - 128px) !important;
-  min-height: 420px;
+  height: calc(92vh - 230px) !important;
+  min-height: 360px;
   max-height: 600px;
+}
+.add-grant-panel {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 0 0 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--pc-divider);
+}
+.add-grant-super {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 14px;
+  color: var(--pc-ink);
+  cursor: pointer;
 }
 
 .pc-page {

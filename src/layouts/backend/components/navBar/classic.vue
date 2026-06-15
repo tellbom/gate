@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useConfig } from '/@/stores/config'
 import { useNavTabs } from '/@/stores/navTabs'
 import NavMenus from '../navMenus.vue'
@@ -40,15 +41,39 @@ import { showShade } from '/@/utils/pageShade'
 
 const config  = useConfig()
 const navTabs = useNavTabs()
+const route   = useRoute()
+
+const titleFallbacks: Array<[RegExp, { title: string; subTitle?: string }]> = [
+  [/\/dashboard$/, { title: '全局视图', subTitle: '统一权限中心' }],
+  [/\/global\/project|\/projects$/, { title: '项目授权', subTitle: 'Project 授权管理' }],
+  [/\/global\/user|\/users$/, { title: '用户授权', subTitle: '跨 Project 用户权限' }],
+  [/\/global\/group|\/groups$/, { title: 'Cross-Project Groups', subTitle: '跨 Project 权限组' }],
+  [/\/global\/rule|\/menus$/, { title: 'Cross-Project Rules', subTitle: '菜单与规则管理' }],
+  [/\/apiMap$/, { title: 'API 权限', subTitle: '接口映射与鉴权' }],
+  [/\/audit$/, { title: '审计中心', subTitle: '近期鉴权活动' }],
+]
+
+const fallbackMeta = computed(() => {
+  const fullPath = route.fullPath || route.path
+  return titleFallbacks.find(([pattern]) => pattern.test(fullPath))?.[1]
+})
 
 /* 读取当前激活路由 meta */
 const activeTitle = computed(() => {
-  const meta = navTabs.state.activeRoute?.meta
-  return (meta?.title as string) || ''
+  return (
+    (route.meta?.title as string) ||
+    (navTabs.state.activeRoute?.meta?.title as string) ||
+    fallbackMeta.value?.title ||
+    ''
+  )
 })
 const activeSub = computed(() => {
-  const meta = navTabs.state.activeRoute?.meta
-  return (meta?.subTitle as string) || ''
+  return (
+    (route.meta?.subTitle as string) ||
+    (navTabs.state.activeRoute?.meta?.subTitle as string) ||
+    fallbackMeta.value?.subTitle ||
+    ''
+  )
 })
 
 const onMenuCollapse = () => {

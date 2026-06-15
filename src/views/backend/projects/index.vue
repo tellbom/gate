@@ -35,7 +35,12 @@
     <!-- ══════════════════════════════════════════
          视图布局（左侧选择列 + 右侧详情）
     ══════════════════════════════════════════ -->
-    <div class="auth-layout">
+    <div v-if="initialLoading" class="pc-card auth-initializing">
+      <RbacSpinner />
+      <div class="pc-t-cap">正在加载授权视图</div>
+    </div>
+
+    <div v-else class="auth-layout">
 
       <!-- ── 左侧选择列 ── -->
       <div class="pc-card auth-rail">
@@ -377,6 +382,7 @@ import RbacStatusBadge  from '/@/components/rbac/RbacStatusBadge.vue'
 import RbacProjectGlyph from '/@/components/rbac/RbacProjectGlyph.vue'
 import RbacEmptyState   from '/@/components/rbac/RbacEmptyState.vue'
 import RbacApiSource    from '/@/components/rbac/RbacApiSource.vue'
+import RbacSpinner      from '/@/components/rbac/RbacSpinner.vue'
 import {
   getGlobalUsers, getGlobalProjects,
   grantGlobalUserProjects, revokeGlobalUserProject, toggleGlobalUserProjectSuper,
@@ -406,6 +412,7 @@ const MODES: Array<{ value: AuthMode; label: string }> = [
 
 /* ── 视图模式 ── */
 const mode = ref<AuthMode>('user')
+const initialLoading = ref(true)
 
 /* ── Projects ── */
 const projects        = ref<string[]>([])
@@ -458,14 +465,15 @@ const superConfirmSummary = computed(() => {
 /* ── 初始化 ── */
 onMounted(async () => {
   projectsLoading.value = true
+  initialLoading.value = true
   try {
-    const res = await getGlobalProjects()
+    const [res] = await Promise.all([getGlobalProjects(), loadRailUsers()])
     projects.value = res.list || []
     if (projects.value.length) selectedProject.value = projects.value[0]
   } finally {
     projectsLoading.value = false
+    initialLoading.value = false
   }
-  await loadRailUsers()
 })
 
 /* ── 模式切换 ── */
@@ -716,6 +724,15 @@ async function onProjContactConfirm(users: Array<{ workNo: string; name: string 
   grid-template-columns: 280px 1fr;
   gap: 20px;
   align-items: start;
+}
+.auth-initializing {
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  animation: pc-fade-up 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 .auth-rail {
   padding: 0;
