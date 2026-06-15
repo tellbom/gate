@@ -111,9 +111,6 @@
         <div class="detail-header">
           <span class="pc-t-cap-strong">权限组详情</span>
           <div style="display:flex;align-items:center;gap:8px">
-            <el-button text type="primary" @click="openEditGroup">
-              <el-icon><Edit /></el-icon> 编辑权限
-            </el-button>
             <el-button text @click="drawerVisible = false"><el-icon><Close /></el-icon></el-button>
           </div>
         </div>
@@ -205,6 +202,9 @@
           <!-- 权限码 -->
           <div class="detail-section-head" style="margin-top:8px">
             <span class="pc-t-section">授权权限码（{{ (selectedGroup.permissionCodes||[]).length }}）</span>
+              <el-button text type="primary" @click="openEditGroup">
+                <el-icon><Edit /></el-icon> 编辑权限
+              </el-button>
           </div>
           <div class="pc-t-cap" style="margin-bottom:12px">permissionCodes = ruleCodes 推导值 ∪ extraPermissionCodes</div>
           <div class="perm-chips">
