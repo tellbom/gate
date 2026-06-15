@@ -114,6 +114,8 @@ export {
     updateGlobalUserStatus,
     grantGlobalUserProjects,
     revokeGlobalUserProject,
+    toggleGlobalUserProjectSuper,
+    deleteGlobalUser,
     getGlobalGroups,
     addGlobalGroupMember,
     removeGlobalGroupMember,

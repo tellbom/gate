@@ -15,9 +15,11 @@ export interface GlobalProjectQuery {
 }
 
 export interface GlobalUserListQuery extends PagedQuery {
+    keyword?: string
     project?: string
     userid?: string
     groupCode?: string
+    status?: 'Active' | 'Disabled'
 }
 
 export interface GlobalGroupListQuery extends PagedQuery {
@@ -54,6 +56,17 @@ export async function revokeGlobalUserProject(userid: string, project: string): 
     return rbacClient.delete<any, ProjectWriteResult>(
         `/api/global/user/${encodeURIComponent(userid)}/project-grants/${encodeURIComponent(project)}`
     )
+}
+
+export async function toggleGlobalUserProjectSuper(userid: string, project: string, isSuper: boolean): Promise<void> {
+    return rbacClient.put<any, void>(
+        `/api/global/user/${encodeURIComponent(userid)}/project-grants/${encodeURIComponent(project)}/super`,
+        { isSuper }
+    )
+}
+
+export async function deleteGlobalUser(userid: string): Promise<void> {
+    return rbacClient.delete<any, void>(`/api/global/user/${encodeURIComponent(userid)}`)
 }
 
 export async function getGlobalGroups(query: GlobalGroupListQuery = {}): Promise<PagedData<GroupItem>> {

@@ -1,8 +1,3 @@
-<!--
-  放置路径：src/layouts/backend/components/aside.vue
-  变更：在 <el-aside> 底部追加 pc-user-row，引入 RbacAvatar 和 RbacBadge。
-  其余逻辑（Logo、MenuVertical、Double 模式）完全不变。
--->
 <template>
   <el-aside
     v-if="!navTabs.state.tabFullScreen"
@@ -13,19 +8,28 @@
     <MenuVerticalChildren v-if="config.layout.layoutMode === 'Double'" />
     <MenuVertical v-else />
 
-    <!-- 底部用户行 -->
-    <div v-if="!config.layout.menuCollapse" class="pc-user-row">
-      <RbacAvatar :name="adminInfo.username || adminInfo.userid || '?'" :size="34" />
-      <div class="pc-user-row__info">
-        <div class="pc-user-row__name">{{ adminInfo.username || adminInfo.userid }}</div>
-        <div class="pc-user-row__sub">{{ adminInfo.userid }} · {{ adminInfo.super ? '超管' : '管理员' }}</div>
+    <el-popover placement="right-end" :width="220" trigger="click" popper-class="pc-user-popover">
+      <template #reference>
+        <div v-if="!config.layout.menuCollapse" class="pc-user-row">
+          <RbacAvatar :name="displayName" :size="34" />
+          <div class="pc-user-row__info">
+            <div class="pc-user-row__name">{{ displayName }}</div>
+            <div class="pc-user-row__sub">{{ adminInfo.userid }} · {{ adminInfo.super ? '超管' : '管理员' }}</div>
+          </div>
+          <RbacBadge v-if="adminInfo.super" tone="super" dot size="sm">super</RbacBadge>
+        </div>
+        <div v-else class="pc-user-row pc-user-row--collapsed">
+          <RbacAvatar :name="displayName" :size="30" />
+        </div>
+      </template>
+
+      <div class="pc-user-card">
+        <RbacAvatar :name="displayName" :size="62" />
+        <div class="pc-user-card__name">{{ displayName }}</div>
+        <div v-if="adminInfo.userid" class="pc-user-card__id">{{ adminInfo.userid }}</div>
+        <el-button class="pc-user-card__logout" type="danger" plain @click="onLogout">注销</el-button>
       </div>
-      <RbacBadge v-if="adminInfo.super" tone="super" dot size="sm">super</RbacBadge>
-    </div>
-    <!-- 折叠时仅显示头像 -->
-    <div v-else class="pc-user-row pc-user-row--collapsed">
-      <RbacAvatar :name="adminInfo.username || adminInfo.userid || '?'" :size="30" />
-    </div>
+    </el-popover>
   </el-aside>
 </template>
 
@@ -39,16 +43,21 @@ import RbacBadge from '/@/components/rbac/RbacBadge.vue'
 import { useConfig } from '/@/stores/config'
 import { useNavTabs } from '/@/stores/navTabs'
 import { useAdminInfo } from '/@/stores/adminInfo'
+import { logoutWithKeycloak } from '/@/utils/keycloak'
 
-const config   = useConfig()
-const navTabs  = useNavTabs()
+const config = useConfig()
+const navTabs = useNavTabs()
 const adminInfo = useAdminInfo()
 
 const menuWidth = computed(() => config.menuWidth())
+const displayName = computed(() => adminInfo.username || adminInfo.userid || '?')
+
+const onLogout = () => {
+  logoutWithKeycloak()
+}
 </script>
 
 <style scoped lang="scss">
-/* 原有样式完全保留 */
 .layout-aside-Default {
   background: var(--ba-bg-color-overlay);
   margin: 16px 0 16px 16px;
@@ -75,7 +84,6 @@ const menuWidth = computed(() => config.menuWidth())
   z-index: 9999999;
 }
 
-/* ── 底部用户行 ── */
 .pc-user-row {
   flex-shrink: 0;
   display: flex;
@@ -84,6 +92,12 @@ const menuWidth = computed(() => config.menuWidth())
   padding: 12px 14px;
   border-top: 1px solid var(--pc-divider);
   margin-top: auto;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+.pc-user-row:hover {
+  background: var(--pc-blue-wash);
 }
 .pc-user-row--collapsed {
   justify-content: center;
@@ -110,5 +124,37 @@ const menuWidth = computed(() => config.menuWidth())
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.pc-user-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px 4px;
+  text-align: center;
+}
+.pc-user-card__name {
+  max-width: 180px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pc-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pc-user-card__id {
+  max-width: 180px;
+  margin-top: 3px;
+  font-family: var(--pc-font-mono);
+  font-size: 11px;
+  color: var(--pc-ink-48);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pc-user-card__logout {
+  width: 100%;
+  margin-top: 14px;
 }
 </style>
