@@ -27,6 +27,12 @@ export async function getRuleTree(): Promise<RuleTreeNode[]> {
     return rbacClient.get<any, RuleTreeNode[]>('/api/rule/tree')
 }
 
+export async function getRuleTreeForProject(project: string): Promise<RuleTreeNode[]> {
+    return rbacClient.get<any, RuleTreeNode[]>('/api/rule/tree', {
+        headers: { 'X-Project': project },
+    })
+}
+
 export interface RuleListQuery extends PagedQuery {
     ruleCode?: string
     permissionCode?: string

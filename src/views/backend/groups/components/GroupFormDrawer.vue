@@ -17,6 +17,20 @@
         label-position="top"
         class="group-form"
       >
+        <el-form-item label="所属系统 (targetProject)" prop="targetProject">
+          <el-select
+            v-model="formData.targetProject"
+            placeholder="请选择业务系统"
+            filterable
+            :disabled="mode === 'edit'"
+            style="width: 100%"
+            @change="handleProjectChange"
+          >
+            <el-option v-for="project in projects" :key="project" :label="project" :value="project" />
+          </el-select>
+          <div class="field-hint">权限组必须创建在指定业务 project 下，不能使用 __global__ 作为业务来源。</div>
+        </el-form-item>
+
         <!-- groupCode -->
         <el-form-item label="组编码 (groupCode)" prop="groupCode" v-if="mode === 'create'">
           <el-input v-model="formData.groupCode" placeholder="留空则自动生成，建议：ops_admin" clearable />
@@ -52,8 +66,8 @@
         </el-form-item>
 
         <!-- ══ 规则授权树（仅新增） ════════════════════════════════ -->
-        <el-form-item label="初始规则授权" v-if="mode === 'create'">
-          <div class="tree-section">
+        <el-form-item :label="mode === 'create' ? '初始规则授权' : '规则授权'">
+          <div class="tree-section" v-loading="resourcesLoading">
             <div class="tree-toolbar">
               <div class="toolbar-left">
                 <el-button size="small" text @click="checkAll">全选</el-button>
@@ -92,7 +106,7 @@
             </el-tree>
           </div>
           <div class="field-hint" style="margin-top:8px">
-            提交 <code>ruleCode</code> 列表，服务端推导 permissionCodes。编辑已有权限组的规则请使用「授权规则」按钮。
+            提交 <code>ruleCode</code> 列表，服务端推导 permissionCodes；extraPermissionCodes 会与规则推导值合并。
           </div>
         </el-form-item>
 
@@ -179,10 +193,10 @@ import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import EditorDrawer from '/@/components/claudetable/EditorDrawer.vue'
 import {
-  createGroup, updateGroup,
-  getGroupOptions, getApiMapList,
+  createGlobalGroup, updateGlobalGroup,
+  getGlobalGroups, getApiMapListForProject, getRuleTreeForProject,
   type GroupItem, type RuleTreeNode,
-  type GroupSelectResult, type ApiMapViewItem,
+  type ApiMapViewItem,
 } from '/@/api/backend/rbac'
 
 // ── Props / Emits ──────────────────────────────────────────────
@@ -190,10 +204,10 @@ interface Props {
   modelValue: boolean
   mode: 'create' | 'edit'
   model: GroupItem | null
-  ruleTree: RuleTreeNode[]
+  projects: string[]
 }
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: false, mode: 'create', model: null, ruleTree: () => [],
+  modelValue: false, mode: 'create', model: null, projects: () => [],
 })
 const emit = defineEmits<{
   (e: 'update:modelValue', val: boolean): void
@@ -206,26 +220,27 @@ const visible = computed({
 })
 const internalModel = computed(() => ({}))
 
-// ── 父组选项 ───────────────────────────────────────────────────
 const parentGroupOptions = ref<{ label: string; value: string; children?: any[] }[]>([])
-async function loadParentOptions() {
-  try {
-    const result = await getGroupOptions() as GroupSelectResult
-    parentGroupOptions.value = result.options ?? []
-  } catch {}
+function toGroupOptions(groups: GroupItem[]) {
+  return groups.map(g => ({ label: `${g.groupName} (${g.groupCode})`, value: g.groupCode }))
 }
 
 // ── 表单 ───────────────────────────────────────────────────────
 interface FormData {
+  targetProject: string
   groupCode: string; groupName: string
   parentGroupCode: string; status: 'Active' | 'Disabled'
 }
 const formRef    = ref()
 const submitting = ref(false)
 const formData   = reactive<FormData>({
+  targetProject: '',
   groupCode: '', groupName: '', parentGroupCode: '', status: 'Active',
 })
 const formRules = {
+  targetProject: [
+    { required: true, message: '请选择所属系统', trigger: 'change' },
+  ],
   groupName: [
     { required: true, message: '请输入组名称', trigger: 'blur' },
     { max: 64, message: '组名称最长 64 字符', trigger: 'blur' },
@@ -238,10 +253,12 @@ const formRules = {
 
 // ── 规则树（仅新增） ───────────────────────────────────────────
 const treeRef = ref(); const treeSearch = ref(''); const checkedCount = ref(0)
+const ruleTree = ref<RuleTreeNode[]>([])
+const resourcesLoading = ref(false)
 
 const filteredRuleTree = computed(() => {
-  if (!treeSearch.value) return props.ruleTree
-  return filterTree(props.ruleTree, treeSearch.value)
+  if (!treeSearch.value) return ruleTree.value
+  return filterTree(ruleTree.value, treeSearch.value)
 })
 function filterTree(nodes: RuleTreeNode[], kw: string): RuleTreeNode[] {
   return nodes.reduce<RuleTreeNode[]>((acc, node) => {
@@ -254,7 +271,7 @@ function filterTree(nodes: RuleTreeNode[], kw: string): RuleTreeNode[] {
 function filterNode(value: string, data: any) {
   return !value || data.title.includes(value) || data.ruleCode.includes(value)
 }
-function checkAll()  { treeRef.value?.setCheckedKeys(flatCodes(props.ruleTree)); updateCheckedCount() }
+function checkAll()  { treeRef.value?.setCheckedKeys(flatCodes(ruleTree.value)); updateCheckedCount() }
 function checkNone() { treeRef.value?.setCheckedKeys([]); updateCheckedCount() }
 function flatCodes(nodes: RuleTreeNode[]): string[] {
   return nodes.reduce<string[]>((acc, n) => {
@@ -269,7 +286,7 @@ function collectRulePermissionCodes(nodes: RuleTreeNode[], result = new Set<stri
   return result
 }
 function getExtraPermissionCodesFromUnion(permissionCodes: string[] = []) {
-  const rulePermissionCodes = collectRulePermissionCodes(props.ruleTree)
+  const rulePermissionCodes = collectRulePermissionCodes(ruleTree.value)
   return permissionCodes.filter(code => !rulePermissionCodes.has(code))
 }
 function updateCheckedCount() { checkedCount.value = treeRef.value?.getCheckedKeys().length ?? 0 }
@@ -301,10 +318,13 @@ const filteredApiOptions = computed(() => {
 
 // 打开时直接调用，不等用户点击
 async function loadApiMapOptions() {
-  if (apiMapOptions.value.length) return  // 已有缓存，跳过
+  if (!formData.targetProject) {
+    apiMapOptions.value = []
+    return
+  }
   apiMapLoading.value = true
   try {
-    const result = await getApiMapList({ pageSize: 200 })
+    const result = await getApiMapListForProject(formData.targetProject, { pageSize: 200 })
     apiMapOptions.value = result.list
   } catch {} finally {
     apiMapLoading.value = false
@@ -325,41 +345,92 @@ function getActionTagType(action: string): 'success' | 'warning' | 'info' | 'dan
 
 // ── 监听打开：立即调用 API ────────────────────────────────────
 watch(
-  () => [props.modelValue, props.mode, props.model, props.ruleTree],
-  () => {
+  () => [props.modelValue, props.mode, props.model, props.projects],
+  async () => {
     if (!props.modelValue) return
 
-    // 每次打开都并发发起这两个请求
-    loadParentOptions()
-    loadApiMapOptions()  // 立即加载，不等用户操作
-
     if (props.mode === 'edit' && props.model) {
+      formData.targetProject    = props.model.project
       formData.groupCode       = props.model.groupCode
       formData.groupName       = props.model.groupName
-      formData.parentGroupCode = ''
+      formData.parentGroupCode = props.model.parentGroupCode ?? props.model.parent_group_code ?? ''
       formData.status          = props.model.status
-      extraPermCodes.value = getExtraPermissionCodesFromUnion(props.model.permissionCodes ?? [])
       apiSearch.value = ''
       apiActionFilter.value = ''
+      await loadProjectResources()
+      const ruleCodes = getRuleCodesFromPermissions(props.model.permissionCodes ?? [])
+      treeRef.value?.setCheckedKeys(ruleCodes)
+      updateCheckedCount()
+      extraPermCodes.value = getExtraPermissionCodesFromUnion(props.model.permissionCodes ?? [])
     } else {
+      formData.targetProject = ''
       formData.groupCode = ''; formData.groupName = ''
       formData.parentGroupCode = ''; formData.status = 'Active'
       treeSearch.value = ''; extraPermCodes.value = []
       apiSearch.value = ''; apiActionFilter.value = ''
       checkedCount.value = 0
+      ruleTree.value = []
+      apiMapOptions.value = []
+      parentGroupOptions.value = []
       setTimeout(() => { treeRef.value?.setCheckedKeys([]); updateCheckedCount() }, 50)
     }
   },
   { immediate: true }
 )
 
+async function handleProjectChange() {
+  formData.parentGroupCode = ''
+  treeSearch.value = ''
+  extraPermCodes.value = []
+  checkedCount.value = 0
+  treeRef.value?.setCheckedKeys([])
+  await loadProjectResources()
+}
+
+async function loadProjectResources() {
+  if (!formData.targetProject) return
+  resourcesLoading.value = true
+  try {
+    const [treeRes, groupRes, apiRes] = await Promise.all([
+      getRuleTreeForProject(formData.targetProject),
+      getGlobalGroups({ project: formData.targetProject, page: 1, pageSize: 200 }),
+      getApiMapListForProject(formData.targetProject, { page: 1, pageSize: 200 }),
+    ])
+    ruleTree.value = treeRes || []
+    parentGroupOptions.value = toGroupOptions((groupRes.list || []).filter(g => g.groupCode !== formData.groupCode))
+    apiMapOptions.value = apiRes.list || []
+  } finally {
+    resourcesLoading.value = false
+  }
+}
+
+function getRuleCodesFromPermissions(permissionCodes: string[]) {
+  const codeSet = new Set(permissionCodes)
+  return flatRuleNodes(ruleTree.value)
+    .filter(rule => rule.permissionCode && codeSet.has(rule.permissionCode))
+    .map(rule => rule.ruleCode)
+}
+
+function flatRuleNodes(nodes: RuleTreeNode[], out: RuleTreeNode[] = []) {
+  for (const node of nodes) {
+    out.push(node)
+    if (node.children?.length) flatRuleNodes(node.children, out)
+  }
+  return out
+}
+
 // ── 提交 ───────────────────────────────────────────────────────
 async function handleSubmit() {
   try { await formRef.value.validate() } catch { return }
   submitting.value = true
   try {
+    if (!formData.targetProject) {
+      ElMessage.warning('请先选择所属系统')
+      return
+    }
     if (props.mode === 'create') {
-      await createGroup({
+      await createGlobalGroup({
+        targetProject:    formData.targetProject,
         groupCode:       formData.groupCode.trim() || undefined,
         groupName:       formData.groupName.trim(),
         parentGroupCode: formData.parentGroupCode || undefined,
@@ -369,10 +440,13 @@ async function handleSubmit() {
       })
       ElMessage.success('权限组创建成功')
     } else {
-      await updateGroup(formData.groupCode, {
+      await updateGlobalGroup(formData.groupCode, {
+        targetProject: formData.targetProject,
         groupName: formData.groupName.trim() || null,
-        status:    formData.status,
-        ...{ extraPermissionCodes: extraPermCodes.value },
+        parentGroupCode: formData.parentGroupCode ?? null,
+        status: formData.status,
+        ruleCodes: getCheckedRuleCodes(),
+        extraPermissionCodes: extraPermCodes.value,
       })
       ElMessage.success('权限组已更新')
     }

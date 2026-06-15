@@ -97,14 +97,27 @@ export {
 export type { GroupIndexQuery, GroupListQuery } from './group'
 
 // 规则 API
-export { getRuleTree, getRuleList, createRule, updateRule, updateRuleStatus, updateRuleWeigh, deleteRule } from './rule'
+export { getRuleTree, getRuleTreeForProject, getRuleList, createRule, updateRule, updateRuleStatus, updateRuleWeigh, deleteRule } from './rule'
 export type { RuleListQuery } from './rule'
 
 // Project 授权 API
 export { grantProjectAccess, revokeProjectAccess, toggleProjectSuper } from './projectGrant'
 
 // API 映射 API
-export { getApiMapList, getApiMapRecords, createApiMap, updateApiMap, deleteApiMap, searchAuditLogs, searchPermissionView } from './apiMap'
+export {
+    getApiMapList,
+    getApiMapListForProject,
+    getApiMapRecords,
+    getApiMapRecordsForProject,
+    createApiMap,
+    createApiMapForProject,
+    updateApiMap,
+    updateApiMapForProject,
+    deleteApiMap,
+    deleteApiMapForProject,
+    searchAuditLogs,
+    searchPermissionView,
+} from './apiMap'
 export type { ApiMapListQuery, ApiMapRecordsQuery } from './apiMap'
 
 // 统一权限中心全局 API
@@ -117,8 +130,22 @@ export {
     toggleGlobalUserProjectSuper,
     deleteGlobalUser,
     getGlobalGroups,
+    createGlobalGroup,
+    updateGlobalGroup,
+    deleteGlobalGroup,
     addGlobalGroupMember,
     removeGlobalGroupMember,
     getGlobalMenus,
+    createGlobalMenu,
+    updateGlobalMenu,
+    deleteGlobalMenu,
 } from './global'
-export type { GlobalUserListQuery, GlobalGroupListQuery, GlobalMenuListQuery } from './global'
+export type {
+    GlobalUserListQuery,
+    GlobalGroupListQuery,
+    GlobalMenuListQuery,
+    GlobalGroupCreateForm,
+    GlobalGroupUpdateForm,
+    GlobalMenuCreateForm,
+    GlobalMenuUpdateForm,
+} from './global'

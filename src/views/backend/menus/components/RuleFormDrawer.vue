@@ -216,11 +216,11 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
-  createRule,
-  updateRule,
+  createGlobalMenu,
+  updateGlobalMenu,
   type RuleTreeNode,
-  type RuleCreateForm,
-  type RuleUpdateForm,
+  type GlobalMenuCreateForm,
+  type GlobalMenuUpdateForm,
   type RecordStatus,
 } from '/@/api/backend/rbac'
 import RuleIconSelector from './RuleIconSelector.vue'
@@ -232,6 +232,7 @@ interface Props {
   model:       RuleTreeNode | null
   parentRow:   RuleTreeNode | null
   ruleTree:    RuleTreeNode[]
+  targetProject: string
 }
 const props = withDefaults(defineProps<Props>(), {
   modelValue: false,
@@ -239,6 +240,7 @@ const props = withDefaults(defineProps<Props>(), {
   model: null,
   parentRow: null,
   ruleTree: () => [],
+  targetProject: '',
 })
 const emit = defineEmits<{
   (e: 'update:modelValue', val: boolean): void
@@ -434,8 +436,13 @@ async function handleSubmit() {
 
   submitting.value = true
   try {
+    if (!props.targetProject) {
+      ElMessage.warning('请先选择系统')
+      return
+    }
     if (props.mode === 'create') {
-      const payload: RuleCreateForm = {
+      const payload: GlobalMenuCreateForm = {
+        targetProject:   props.targetProject,
         ruleCode:       formData.ruleCode.trim(),
         permissionCode: formData.permissionCode.trim(),
         title:          formData.title.trim(),
@@ -453,10 +460,11 @@ async function handleSubmit() {
       if (formData.remark.trim())         payload.remark         = formData.remark.trim()
       payload.keepalive = formData.keepalive
 
-      await createRule(payload)
+      await createGlobalMenu(payload)
       ElMessage.success('规则创建成功')
     } else {
-      const payload: RuleUpdateForm = {
+      const payload: GlobalMenuUpdateForm = {
+        targetProject:   props.targetProject,
         title:          formData.title.trim()          || null,
         permissionCode: formData.permissionCode.trim() || null,
         name:           formData.name.trim()           || null,
@@ -472,7 +480,7 @@ async function handleSubmit() {
         weigh:          formData.weigh,
         status:         formData.status,
       }
-      await updateRule(formData.ruleCode, payload)
+      await updateGlobalMenu(formData.ruleCode, payload)
       ElMessage.success('规则已更新')
     }
     emit('submit')

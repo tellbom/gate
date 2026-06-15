@@ -752,8 +752,8 @@ defineExpose({
 
 <style lang="scss">
 .editor-drawer{
-   top: 48px !important;
-    height: calc(100% - 48px) !important;
+   top: 0 !important;
+    height: 100vh !important;
 }
 .umo-button-content {
   .fa-file::before {

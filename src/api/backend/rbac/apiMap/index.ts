@@ -40,12 +40,26 @@ export async function getApiMapList(query: ApiMapListQuery = {}): Promise<PagedD
     })
 }
 
+export async function getApiMapListForProject(project: string, query: ApiMapListQuery = {}): Promise<PagedData<ApiMapViewItem>> {
+    return rbacClient.get<any, PagedData<ApiMapViewItem>>('/api/api-map/list', {
+        params: query,
+        headers: { 'X-Project': project },
+    })
+}
+
 /**
  * GET /api/api-map/records
  * 分页查询 API 映射完整记录，用于管理页列表、编辑回显和删除定位。
  */
 export async function getApiMapRecords(query: ApiMapRecordsQuery = {}): Promise<PagedData<ApiMapRecordItem>> {
     return rbacClient.get<any, PagedData<ApiMapRecordItem>>('/api/api-map/records', { params: query })
+}
+
+export async function getApiMapRecordsForProject(project: string, query: ApiMapRecordsQuery = {}): Promise<PagedData<ApiMapRecordItem>> {
+    return rbacClient.get<any, PagedData<ApiMapRecordItem>>('/api/api-map/records', {
+        params: query,
+        headers: { 'X-Project': project },
+    })
 }
 
 /**
@@ -60,12 +74,24 @@ export async function createApiMap(form: ApiMapCreateForm): Promise<ApiMapCreate
     return rbacClient.post<any, ApiMapCreateResult>('/api/api-map', form)
 }
 
+export async function createApiMapForProject(project: string, form: ApiMapCreateForm): Promise<ApiMapCreateResult> {
+    return rbacClient.post<any, ApiMapCreateResult>('/api/api-map', form, {
+        headers: { 'X-Project': project },
+    })
+}
+
 /**
  * PUT /api/api-map/{id}
  * 更新权限码或动作。id 为后端返回的 Guid。
  */
 export async function updateApiMap(id: string, form: ApiMapUpdateForm): Promise<void> {
     return rbacClient.put<any, void>(`/api/api-map/${encodeURIComponent(id)}`, form)
+}
+
+export async function updateApiMapForProject(project: string, id: string, form: ApiMapUpdateForm): Promise<void> {
+    return rbacClient.put<any, void>(`/api/api-map/${encodeURIComponent(id)}`, form, {
+        headers: { 'X-Project': project },
+    })
 }
 
 /**
@@ -75,6 +101,12 @@ export async function updateApiMap(id: string, form: ApiMapUpdateForm): Promise<
  */
 export async function deleteApiMap(id: string): Promise<void> {
     return rbacClient.delete<any, void>(`/api/api-map/${encodeURIComponent(id)}`)
+}
+
+export async function deleteApiMapForProject(project: string, id: string): Promise<void> {
+    return rbacClient.delete<any, void>(`/api/api-map/${encodeURIComponent(id)}`, {
+        headers: { 'X-Project': project },
+    })
 }
 
 // ── 查询接口 /api/search ──────────────────────────────────────────────────────

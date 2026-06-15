@@ -150,6 +150,7 @@
         :model="currentRow"
         :parent-row="parentRow"
         :rule-tree="treeData"
+        :target-project="currentProject"
         @submit="handleFormSubmit"
       />
     </div>
@@ -157,17 +158,14 @@
     <!-- 接口来源 -->
     <div style="margin-top:24px">
       <RbacApiSource :endpoints="[
-        { m: 'GET',  p: '/api/rule/list',          d: '规则列表（全量分页加载构建树）' },
-        { m: 'GET',  p: '/api/rule/tree',           d: '规则树（用于新建/编辑父级选择）' },
-        { m: 'POST', p: '/api/rule',                d: '新建规则' },
-        { m: 'PUT',  p: '/api/rule/{ruleCode}',     d: '编辑规则' },
-        { m: 'PUT',  p: '/api/rule/{ruleCode}/status', d: '启用/禁用规则' },
-        { m: 'PUT',  p: '/api/rule/{ruleCode}/weigh',  d: '更新排序权重' },
-        { m: 'DELETE', p: '/api/rule/{ruleCode}',   d: '删除规则（父节点存在子节点时阻止）' },
-        { m: 'GET',  p: '/api/api-map/records',     d: 'API 映射记录列表' },
-        { m: 'POST', p: '/api/api-map',             d: '新增 API 映射' },
-        { m: 'PUT',  p: '/api/api-map/{id}',        d: '更新 API 映射' },
-        { m: 'DELETE', p: '/api/api-map/{id}',      d: '删除 API 映射' },
+        { m: 'GET',  p: '/api/global/menu/list',       d: '按 project 读取菜单/规则列表' },
+        { m: 'POST', p: '/api/global/menu',            d: '新建规则（body 含 targetProject）' },
+        { m: 'PUT',  p: '/api/global/menu/{ruleCode}', d: '编辑规则 / 状态 / 权重（body 含 targetProject）' },
+        { m: 'DELETE', p: '/api/global/menu/{ruleCode}', d: '删除规则（query targetProject）' },
+        { m: 'GET',  p: '/api/api-map/records',        d: 'API 映射记录列表（单次请求覆盖 X-Project）' },
+        { m: 'POST', p: '/api/api-map',                d: '新增 API 映射（单次请求覆盖 X-Project）' },
+        { m: 'PUT',  p: '/api/api-map/{id}',           d: '更新 API 映射（单次请求覆盖 X-Project）' },
+        { m: 'DELETE', p: '/api/api-map/{id}',         d: '删除 API 映射（单次请求覆盖 X-Project）' },
       ]" />
     </div>
 
@@ -284,8 +282,8 @@ import RbacStatusBadge  from '/@/components/rbac/RbacStatusBadge.vue'
 import RbacEmptyState   from '/@/components/rbac/RbacEmptyState.vue'
 import RbacApiSource    from '/@/components/rbac/RbacApiSource.vue'
 import {
-  getRuleList, updateRuleStatus, updateRuleWeigh, deleteRule,
-  getGlobalProjects, getApiMapRecords, createApiMap, updateApiMap, deleteApiMap,
+  getGlobalMenus, updateGlobalMenu, deleteGlobalMenu,
+  getGlobalProjects, getApiMapRecordsForProject, createApiMapForProject, updateApiMapForProject, deleteApiMapForProject,
   type RuleItem, type RuleTreeNode, type ApiAction, type HttpMethod, type RecordStatus,
 } from '/@/api/backend/rbac'
 import { useAdminInfo } from '/@/stores/adminInfo'
@@ -302,8 +300,10 @@ async function loadProjects() {
   if (projectTabs.value.length) currentProject.value = projectTabs.value[0]
 }
 function switchProject(p: string) {
+  if (currentProject.value === p) return
   currentProject.value = p
-  loadTree()
+  apiQuery.page = 1
+  Promise.all([loadTree(), loadApiRecords()])
 }
 
 /* ── 树形表格（原附件逻辑完整复制） ── */
@@ -337,8 +337,21 @@ async function loadTree() {
 }
 
 async function loadAllRules(): Promise<RuleItem[]> {
+  if (!currentProject.value) return []
   let page = 1; let total = 0; const list: RuleItem[] = []
-  do { const r = await getRuleList({ page, pageSize: 100 }); list.push(...r.list); total = r.total; page++ } while (list.length < total)
+  do {
+    const r = await getGlobalMenus({
+      project: currentProject.value,
+      keyword: filterParams.value.keyword || undefined,
+      type: filterParams.value.type || undefined,
+      status: filterParams.value.status || undefined,
+      page,
+      pageSize: 100,
+    })
+    list.push(...r.list)
+    total = r.total
+    page++
+  } while (list.length < total)
   return list
 }
 
@@ -395,17 +408,27 @@ function openEdit(row: RuleTreeNode) { formMode.value = 'edit'; currentRow.value
 function handleFormSubmit() { formDrawerVisible.value = false; loadTree() }
 
 async function handleStatusToggle(row: RuleTableNode, active: any) {
+  if (!currentProject.value) { ElMessage.warning('请先选择系统'); return }
   const status = active === true ? 'Active' : 'Disabled'
-  try { await updateRuleStatus(row.ruleCode, { status }); row.status = status; ElMessage.success(`已${active ? '启用' : '禁用'}「${row.title}」`) } catch {}
+  try {
+    await updateGlobalMenu(row.ruleCode, { targetProject: currentProject.value, status })
+    row.status = status
+    ElMessage.success(`已${active ? '启用' : '禁用'}「${row.title}」`)
+  } catch {}
 }
 async function handleWeighChange(row: RuleTableNode, val: number | undefined) {
-  try { await updateRuleWeigh(row.ruleCode, { weigh: val ?? 0 }); row.weigh = val ?? 0 } catch {}
+  if (!currentProject.value) { ElMessage.warning('请先选择系统'); return }
+  try {
+    await updateGlobalMenu(row.ruleCode, { targetProject: currentProject.value, weigh: val ?? 0 })
+    row.weigh = val ?? 0
+  } catch {}
 }
 async function handleDelete(row: RuleTreeNode) {
+  if (!currentProject.value) { ElMessage.warning('请先选择系统'); return }
   const hasKids = (row.children ?? []).length > 0
   try {
     await ElMessageBox.confirm(hasKids ? `「${row.title}」下还有子规则，请先删除子规则。` : `确定删除规则「${row.title}」？`, '删除确认', { confirmButtonText: '确定删除', type: 'warning' })
-    await deleteRule(row.ruleCode); ElMessage.success('规则已删除'); loadTree()
+    await deleteGlobalMenu(row.ruleCode, currentProject.value); ElMessage.success('规则已删除'); loadTree()
   } catch (e: any) { if (e === 'cancel' || e?.message === 'cancel') return }
 }
 
@@ -422,25 +445,32 @@ const apiEditId = ref('')
 const apiForm = reactive<{ httpMethod: HttpMethod; routePattern: string; permissionCode: string; action: ApiAction }>({ httpMethod: 'GET', routePattern: '', permissionCode: '', action: 'read' })
 
 async function loadApiRecords() {
+  if (!currentProject.value) {
+    apiRecords.value = []
+    apiTotal.value = 0
+    return
+  }
   apiLoading.value = true
   try {
-    const res = await getApiMapRecords({ keyword: apiQuery.keyword || undefined, status: apiQuery.status || undefined, page: apiQuery.page, pageSize: apiQuery.pageSize })
+    const res = await getApiMapRecordsForProject(currentProject.value, { keyword: apiQuery.keyword || undefined, status: apiQuery.status || undefined, page: apiQuery.page, pageSize: apiQuery.pageSize })
     apiRecords.value = res.list || []; apiTotal.value = res.total || 0
   } finally { apiLoading.value = false }
 }
 function openApiCreate() { Object.assign(apiForm, { httpMethod: 'GET', routePattern: '', permissionCode: '', action: 'read' }); apiFormMode.value = 'create'; apiEditId.value = ''; apiFormVisible.value = true }
 function openApiEdit(r: any) { Object.assign(apiForm, { permissionCode: r.permissionCode, action: r.action }); apiFormMode.value = 'edit'; apiEditId.value = r.id; apiFormVisible.value = true }
 async function submitApiForm() {
+  if (!currentProject.value) { ElMessage.warning('请先选择系统'); return }
   apiFormLoading.value = true
   try {
-    if (apiFormMode.value === 'create') { await createApiMap({ httpMethod: apiForm.httpMethod, routePattern: apiForm.routePattern, permissionCode: apiForm.permissionCode, action: apiForm.action }); ElMessage.success('映射已新增') }
-    else { await updateApiMap(apiEditId.value, { permissionCode: apiForm.permissionCode, action: apiForm.action }); ElMessage.success('已更新') }
+    if (apiFormMode.value === 'create') { await createApiMapForProject(currentProject.value, { httpMethod: apiForm.httpMethod, routePattern: apiForm.routePattern, permissionCode: apiForm.permissionCode, action: apiForm.action }); ElMessage.success('映射已新增') }
+    else { await updateApiMapForProject(currentProject.value, apiEditId.value, { permissionCode: apiForm.permissionCode, action: apiForm.action }); ElMessage.success('已更新') }
     apiFormVisible.value = false; await loadApiRecords()
   } catch { ElMessage.error('操作失败') } finally { apiFormLoading.value = false }
 }
 async function deleteApiRecord(id: string) {
+  if (!currentProject.value) { ElMessage.warning('请先选择系统'); return }
   await ElMessageBox.confirm('确认删除该 API 映射？', '删除', { type: 'warning' })
-  try { await deleteApiMap(id); ElMessage.success('已删除'); await loadApiRecords() } catch { ElMessage.error('删除失败') }
+  try { await deleteApiMapForProject(currentProject.value, id); ElMessage.success('已删除'); await loadApiRecords() } catch { ElMessage.error('删除失败') }
 }
 
 onMounted(async () => { await loadProjects(); await Promise.all([loadTree(), loadApiRecords()]) })

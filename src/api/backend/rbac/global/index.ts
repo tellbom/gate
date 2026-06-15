@@ -5,9 +5,13 @@ import type {
     GlobalGroupMemberForm,
     GlobalProjectListResult,
     GlobalUserGrantForm,
+    GroupCreateForm,
     GroupItem,
+    GroupUpdateForm,
     ProjectWriteResult,
+    RuleCreateForm,
     RuleItem,
+    RuleUpdateForm,
 } from '../types'
 
 export interface GlobalProjectQuery {
@@ -36,7 +40,17 @@ export interface GlobalMenuListQuery extends PagedQuery {
     permissionCode?: string
     type?: string
     menuType?: string
+    keyword?: string
+    status?: 'Active' | 'Disabled'
 }
+
+export type GlobalGroupCreateForm = GroupCreateForm & { targetProject: string }
+export type GlobalGroupUpdateForm = GroupUpdateForm & {
+    targetProject: string
+    extraPermissionCodes?: string[]
+}
+export type GlobalMenuCreateForm = RuleCreateForm & { targetProject: string }
+export type GlobalMenuUpdateForm = RuleUpdateForm & { targetProject: string }
 
 export async function getGlobalProjects(): Promise<GlobalProjectListResult> {
     return rbacClient.get<any, GlobalProjectListResult>('/api/global/project/list')
@@ -75,6 +89,20 @@ export async function getGlobalGroups(query: GlobalGroupListQuery = {}): Promise
     return rbacClient.get<any, PagedData<GroupItem>>('/api/global/group/list', { params: query })
 }
 
+export async function createGlobalGroup(form: GlobalGroupCreateForm): Promise<{ groupCode: string }> {
+    return rbacClient.post<any, { groupCode: string }>('/api/global/group', form)
+}
+
+export async function updateGlobalGroup(groupCode: string, form: GlobalGroupUpdateForm): Promise<void> {
+    return rbacClient.put<any, void>(`/api/global/group/${encodeURIComponent(groupCode)}`, form)
+}
+
+export async function deleteGlobalGroup(groupCode: string, targetProject: string): Promise<void> {
+    return rbacClient.delete<any, void>(`/api/global/group/${encodeURIComponent(groupCode)}`, {
+        params: { targetProject },
+    })
+}
+
 export async function addGlobalGroupMember(groupCode: string, form: GlobalGroupMemberForm): Promise<void> {
     return rbacClient.post<any, void>(`/api/global/group/${encodeURIComponent(groupCode)}/members`, form)
 }
@@ -87,5 +115,19 @@ export async function removeGlobalGroupMember(groupCode: string, userid: string,
 
 export async function getGlobalMenus(query: GlobalMenuListQuery = {}): Promise<PagedData<RuleItem>> {
     return rbacClient.get<any, PagedData<RuleItem>>('/api/global/menu/list', { params: query })
+}
+
+export async function createGlobalMenu(form: GlobalMenuCreateForm): Promise<{ ruleCode: string }> {
+    return rbacClient.post<any, { ruleCode: string }>('/api/global/menu', form)
+}
+
+export async function updateGlobalMenu(ruleCode: string, form: GlobalMenuUpdateForm): Promise<void> {
+    return rbacClient.put<any, void>(`/api/global/menu/${encodeURIComponent(ruleCode)}`, form)
+}
+
+export async function deleteGlobalMenu(ruleCode: string, targetProject: string): Promise<void> {
+    return rbacClient.delete<any, void>(`/api/global/menu/${encodeURIComponent(ruleCode)}`, {
+        params: { targetProject },
+    })
 }
 

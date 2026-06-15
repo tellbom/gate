@@ -95,13 +95,13 @@
     <div style="margin-top:24px">
       <RbacApiSource :endpoints="[
         { m: 'GET',    p: '/api/global/group/list',                          d: '跨 project 权限组列表（分页）' },
-        { m: 'POST',   p: '/api/group',                                      d: '新建权限组（ruleCodes + extraPermissionCodes）' },
-        { m: 'PUT',    p: '/api/group/{groupCode}/status',                   d: '启用 / 禁用权限组' },
+        { m: 'POST',   p: '/api/global/group',                               d: '新建权限组（body 含 targetProject）' },
+        { m: 'PUT',    p: '/api/global/group/{groupCode}',                   d: '编辑权限组 / 规则授权 / 状态切换' },
         { m: 'POST',   p: '/api/global/group/{groupCode}/members',           d: '添加成员（body 含 targetProject）' },
         { m: 'DELETE', p: '/api/global/group/{groupCode}/members/{userid}',  d: '移除成员（query targetProject）' },
         { m: 'GET',    p: '/api/rule/tree',                                  d: '新建时规则授权选择器' },
         { m: 'GET',    p: '/api/api-map/list',                               d: '新建时 extraPermissionCodes 选择器' },
-      ]" note="组层级仅用于展示，实际访问由 permissionCodes 决定。新建/编辑为 per-project 接口（X-Project = group.project）。" />
+      ]" note="组层级仅用于展示，实际访问由 permissionCodes 决定。全局写接口通过 targetProject 指定真实业务系统。" />
     </div>
 
     <!-- ══ 详情抽屉 ══ -->
@@ -110,7 +110,12 @@
         <!-- 头部 -->
         <div class="detail-header">
           <span class="pc-t-cap-strong">权限组详情</span>
-          <el-button text @click="drawerVisible = false"><el-icon><Close /></el-icon></el-button>
+          <div style="display:flex;align-items:center;gap:8px">
+            <el-button text type="primary" @click="openEditGroup">
+              <el-icon><Edit /></el-icon> 编辑权限
+            </el-button>
+            <el-button text @click="drawerVisible = false"><el-icon><Close /></el-icon></el-button>
+          </div>
         </div>
 
         <!-- 组信息 -->
@@ -156,21 +161,10 @@
 
           <!-- 成员 -->
           <div class="detail-section-head">
-            <span class="pc-t-section">成员（{{ detailMembers.length }}）</span>
-            <el-button text type="primary" size="small" @click="addMemberExpanded = !addMemberExpanded">
+            <span class="pc-t-section">成员（{{ memberTotal }}）</span>
+            <el-button text type="primary" size="small" @click="memberDialogVisible = true">
               <el-icon><Plus /></el-icon> 添加成员
             </el-button>
-          </div>
-
-          <!-- ContactSelector 展开区 -->
-          <div v-if="addMemberExpanded" class="add-member-box pc-anim-fade">
-            <ContactSelector
-              :org-list="MOCK_ORGS"
-              :user-list="MOCK_USERS"
-              :multiple="true"
-              @confirm="onMemberConfirm"
-              @cancel="addMemberExpanded = false"
-            />
           </div>
 
           <div class="member-list">
@@ -195,6 +189,18 @@
               </div>
             </div>
           </div>
+          <div v-if="memberTotal > memberQuery.pageSize" class="member-pagination">
+            <el-pagination
+              v-model:current-page="memberQuery.page"
+              v-model:page-size="memberQuery.pageSize"
+              :page-sizes="[10, 20, 50]"
+              :total="memberTotal"
+              layout="sizes, prev, pager, next"
+              small
+              @size-change="loadDetailMembers"
+              @current-change="loadDetailMembers"
+            />
+          </div>
 
           <!-- 权限码 -->
           <div class="detail-section-head" style="margin-top:8px">
@@ -215,33 +221,48 @@
 
     <GroupFormDrawer
       v-model="formDrawerVisible"
-      mode="create"
-      :model="null"
-      :rule-tree="ruleTree"
+      :mode="formMode"
+      :model="editingGroup"
+      :projects="projects"
       @submit="handleCreateSubmit"
     />
+
+    <el-dialog
+      v-model="memberDialogVisible"
+      title="选择成员"
+      width="980px"
+      append-to-body
+      destroy-on-close
+      class="pc-member-dialog"
+    >
+      <ContactSelector
+        :org-list="MOCK_ORGS"
+        :user-list="MOCK_USERS"
+        :multiple="true"
+        @confirm="onMemberConfirm"
+        @cancel="memberDialogVisible = false"
+      />
+    </el-dialog>
 
   </main>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue'
-import { Search, Plus, Close, Lock } from '@element-plus/icons-vue'
+import { Search, Plus, Close, Lock, Edit } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import ContactSelector  from '/@/components/ContactSelector.vue'
 import GroupFormDrawer  from './components/GroupFormDrawer.vue'
 import RbacAvatar       from '/@/components/rbac/RbacAvatar.vue'
-import RbacBadge        from '/@/components/rbac/RbacBadge.vue'
 import RbacStatusBadge  from '/@/components/rbac/RbacStatusBadge.vue'
 import RbacProjectGlyph from '/@/components/rbac/RbacProjectGlyph.vue'
 import RbacEmptyState   from '/@/components/rbac/RbacEmptyState.vue'
 import RbacApiSource    from '/@/components/rbac/RbacApiSource.vue'
 import {
   getGlobalGroups, getGlobalProjects, getGlobalUsers,
-  updateGroupStatus,
+  updateGlobalGroup,
   addGlobalGroupMember, removeGlobalGroupMember,
-  getRuleTree,
-  type GroupItem, type AdminItem, type RuleTreeNode,
+  type GroupItem, type AdminItem,
 } from '/@/api/backend/rbac'
 
 /* ── Mock 人员（待替换） ── */
@@ -270,15 +291,18 @@ const selectedGroup   = ref<GroupItem | null>(null)
 const statusLoading   = ref(false)
 const detailMembers   = ref<AdminItem[]>([])
 const membersLoading  = ref(false)
-const addMemberExpanded = ref(false)
+const memberTotal = ref(0)
+const memberDialogVisible = ref(false)
+const memberQuery = reactive({ page: 1, pageSize: 10 })
 
 /* ── 新建 ── */
 const formDrawerVisible = ref(false)
-const ruleTree = ref<RuleTreeNode[]>([])
+const formMode = ref<'create' | 'edit'>('create')
+const editingGroup = ref<GroupItem | null>(null)
 
 /* ── 初始化 ── */
 onMounted(async () => {
-  const [, pRes] = await Promise.all([loadGroups(), getGlobalProjects(), loadRuleTree()])
+  const [, pRes] = await Promise.all([loadGroups(), getGlobalProjects()])
   projects.value = pRes.list || []
 })
 
@@ -304,12 +328,47 @@ function onSearch() { query.page = 1; loadGroups() }
 async function openDetail(g: GroupItem) {
   selectedGroup.value   = g
   drawerVisible.value   = true
-  addMemberExpanded.value = false
-  membersLoading.value  = true
+  memberDialogVisible.value = false
+  memberQuery.page = 1
+  await loadDetailMembers()
+}
+
+async function fetchProjectUsersExhaustive(project: string): Promise<AdminItem[]> {
+  const pageSize = 100
+  const batchSize = 4
+  const all: AdminItem[] = []
+  let nextPage = 1
+
+  while (true) {
+    const pages = Array.from({ length: batchSize }, (_, i) => nextPage + i)
+    const results = await Promise.all(
+      pages.map(page => getGlobalUsers({ project, page, pageSize }).catch(() => ({ list: [], total: 0 })))
+    )
+    const lists = results.map(r => r.list || [])
+    all.push(...lists.flat())
+    nextPage += batchSize
+
+    if (lists.some(list => list.length < pageSize)) break
+  }
+
+  const seen = new Set<string>()
+  return all.filter((u) => {
+    if (seen.has(u.userid)) return false
+    seen.add(u.userid)
+    return true
+  })
+}
+
+async function loadDetailMembers() {
+  if (!selectedGroup.value) return
+  const group = selectedGroup.value
+  membersLoading.value = true
   try {
-    const res = await getGlobalUsers({ project: g.project, page: 1, pageSize: 50 })
-    // 过滤出属于该组的成员
-    detailMembers.value = (res.list || []).filter(u => (u.groupCodes || []).includes(g.groupCode))
+    const users = await fetchProjectUsersExhaustive(group.project)
+    const members = users.filter(u => (u.groupCodes || []).includes(group.groupCode))
+    memberTotal.value = members.length
+    const start = (memberQuery.page - 1) * memberQuery.pageSize
+    detailMembers.value = members.slice(start, start + memberQuery.pageSize)
   } finally {
     membersLoading.value = false
   }
@@ -319,7 +378,10 @@ async function toggleStatus(active: boolean) {
   if (!selectedGroup.value) return
   statusLoading.value = true
   try {
-    await updateGroupStatus(selectedGroup.value.groupCode, { status: active ? 'Active' : 'Disabled' })
+    await updateGlobalGroup(selectedGroup.value.groupCode, {
+      targetProject: selectedGroup.value.project,
+      status: active ? 'Active' : 'Disabled',
+    })
     selectedGroup.value = { ...selectedGroup.value, status: active ? 'Active' : 'Disabled' }
     await loadGroups()
     ElMessage.success(`权限组已${active ? '启用' : '禁用'}`)
@@ -328,7 +390,7 @@ async function toggleStatus(active: boolean) {
 }
 
 async function onMemberConfirm(users: Array<{ workNo: string; name: string }>) {
-  addMemberExpanded.value = false
+  memberDialogVisible.value = false
   if (!selectedGroup.value || !users.length) return
   for (const u of users) {
     try {
@@ -339,7 +401,8 @@ async function onMemberConfirm(users: Array<{ workNo: string; name: string }>) {
     } catch { ElMessage.warning(`${u.name} 添加失败`) }
   }
   ElMessage.success(`已添加 ${users.length} 名成员`)
-  await openDetail(selectedGroup.value)
+  await loadDetailMembers()
+  await loadGroups()
 }
 
 async function removeMember(userid: string) {
@@ -347,27 +410,33 @@ async function removeMember(userid: string) {
   await ElMessageBox.confirm('确认移除该成员？', '移除成员', { type: 'warning' })
   try {
     await removeGlobalGroupMember(selectedGroup.value.groupCode, userid, selectedGroup.value.project)
-    detailMembers.value = detailMembers.value.filter(u => u.userid !== userid)
+    await loadDetailMembers()
+    await loadGroups()
     ElMessage.success('已移除')
   } catch { ElMessage.error('操作失败') }
 }
 
 /* ── 新建 ── */
 function openCreate() {
+  formMode.value = 'create'
+  editingGroup.value = null
   formDrawerVisible.value = true
 }
 
-async function loadRuleTree() {
-  try {
-    ruleTree.value = await getRuleTree()
-  } catch {
-    ruleTree.value = []
-  }
+function openEditGroup() {
+  if (!selectedGroup.value) return
+  formMode.value = 'edit'
+  editingGroup.value = { ...selectedGroup.value }
+  formDrawerVisible.value = true
 }
 
 async function handleCreateSubmit() {
   formDrawerVisible.value = false
   await loadGroups()
+  if (selectedGroup.value) {
+    const fresh = rows.value.find(g => g.project === selectedGroup.value?.project && g.groupCode === selectedGroup.value?.groupCode)
+    if (fresh) selectedGroup.value = fresh
+  }
 }
 </script>
 
@@ -425,9 +494,9 @@ async function handleCreateSubmit() {
 .detail-body    { flex: 1; overflow-y: auto; padding: 20px 24px; }
 .detail-section-card { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--pc-parchment); border-radius: 12px; margin-bottom: 22px; }
 .detail-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.add-member-box { border: 1px solid var(--pc-hairline); border-radius: 12px; overflow: hidden; margin-bottom: 14px; max-height: 560px; }
 .member-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 24px; }
 .member-row  { display: flex; align-items: center; gap: 11px; padding: 9px 12px; border: 1px solid var(--pc-hairline); border-radius: 11px; }
+.member-pagination { display: flex; justify-content: flex-end; margin: -12px 0 20px; }
 .perm-chips  { display: flex; flex-wrap: wrap; gap: 7px; }
 .perm-chip   { font-family: var(--pc-font-mono); font-size: 11.5px; padding: 5px 10px; border-radius: 7px; }
 
@@ -440,4 +509,16 @@ async function handleCreateSubmit() {
 .extra-perm-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .extra-chip { padding: 6px 11px; border-radius: 9999px; font-size: 12px; cursor: pointer; border: 1px solid var(--pc-hairline); background: #fff; color: var(--pc-ink-80); transition: all 0.12s; &--on { border: 1.5px solid var(--pc-blue); background: var(--pc-blue-wash); color: var(--pc-blue); } }
 .derived-preview { background: var(--pc-parchment); border-radius: 12px; padding: 14px; }
+</style>
+
+<style lang="scss">
+.pc-member-dialog {
+  .el-dialog__body {
+    padding-top: 8px;
+  }
+
+  .contact-selector {
+    height: min(640px, calc(92vh - 160px));
+  }
+}
 </style>
