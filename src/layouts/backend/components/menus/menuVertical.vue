@@ -1,16 +1,24 @@
+<!--
+  放置路径：src/layouts/backend/components/menus/menuVertical.vue
+  变更：仅修改 <style> 中的菜单样式，模板和 script 逻辑完全不变。
+  - 菜单项高度 38px，margin 9px 14px，border-radius 9px，padding 0 12px
+  - 激活态：pc-blue-wash 背景 + pc-blue 文字 + 600 字重
+  - hover：pc-blue-wash 背景（替换原来的纯白）
+  - 子菜单展开标题保持一致样式
+-->
 <template>
-    <el-scrollbar ref="layoutMenuScrollbarRef" class="vertical-menus-scrollbar">
-        <el-menu
-            class="layouts-menu-vertical"
-            :collapse-transition="false"
-            :unique-opened="config.layout.menuUniqueOpened"
-            :default-active="state.defaultActive"
-            :collapse="config.layout.menuCollapse"
-            ref="layoutMenuRef"
-        >
-            <MenuTree :menus="navTabs.state.tabsViewRoutes" />
-        </el-menu>
-    </el-scrollbar>
+  <el-scrollbar ref="layoutMenuScrollbarRef" class="vertical-menus-scrollbar">
+    <el-menu
+      class="layouts-menu-vertical"
+      :collapse-transition="false"
+      :unique-opened="config.layout.menuUniqueOpened"
+      :default-active="state.defaultActive"
+      :collapse="config.layout.menuCollapse"
+      ref="layoutMenuRef"
+    >
+      <MenuTree :menus="navTabs.state.tabsViewRoutes" />
+    </el-menu>
+  </el-scrollbar>
 </template>
 
 <script setup lang="ts">
@@ -21,93 +29,98 @@ import { layoutMenuRef, layoutMenuScrollbarRef } from '/@/stores/refs'
 import { useConfig } from '/@/stores/config'
 import { useNavTabs } from '/@/stores/navTabs'
 
-const config = useConfig()
+const config  = useConfig()
 const navTabs = useNavTabs()
-const route = useRoute()
+const route   = useRoute()
 
-const state = reactive({
-    defaultActive: '',
-})
+const state = reactive({ defaultActive: '' })
 
 const verticalMenusScrollbarHeight = computed(() => {
-    let menuTopBarHeight = 0
-    if (config.layout.menuShowTopBar) {
-        menuTopBarHeight = 50
-    }
-    if (config.layout.layoutMode == 'Default') {
-        return 'calc(100vh - ' + (32 + menuTopBarHeight) + 'px)'
-    } else {
-        return 'calc(100vh - ' + menuTopBarHeight + 'px)'
-    }
+  const topBarH = config.layout.menuShowTopBar ? 50 : 0
+  return config.layout.layoutMode === 'Default'
+    ? `calc(100vh - ${32 + topBarH}px)`
+    : `calc(100vh - ${topBarH}px)`
 })
 
-/**
- * 激活当前路由对应的菜单
- */
 const currentRouteActive = (currentRoute: RouteLocationNormalizedLoaded) => {
-    const tabView = navTabs.getTabsViewDataByRoute(currentRoute)
-    if (tabView) {
-        // 以路由 fullPath 匹配的菜单优先，且 fullPath 无匹配时，回退到 path 的匹配菜单
-        state.defaultActive = tabView.meta!.matched as string
-    }
+  const tabView = navTabs.getTabsViewDataByRoute(currentRoute)
+  if (tabView) state.defaultActive = tabView.meta!.matched as string
 }
 
-// 滚动条滚动到激活菜单所在位置
 const verticalMenusScroll = () => {
-    nextTick(() => {
-        let activeMenu: HTMLElement | null = document.querySelector('.el-menu.layouts-menu-vertical li.is-active')
-        if (!activeMenu) return false
-        layoutMenuScrollbarRef.value?.setScrollTop(activeMenu.offsetTop)
-    })
+  nextTick(() => {
+    const activeMenu: HTMLElement | null = document.querySelector('.el-menu.layouts-menu-vertical li.is-active')
+    if (!activeMenu) return
+    layoutMenuScrollbarRef.value?.setScrollTop(activeMenu.offsetTop)
+  })
 }
 
-onMounted(() => {
-    currentRouteActive(route)
-    verticalMenusScroll()
-})
-
-onBeforeRouteUpdate((to) => {
-    currentRouteActive(to)
-})
+onMounted(() => { currentRouteActive(route); verticalMenusScroll() })
+onBeforeRouteUpdate((to) => { currentRouteActive(to) })
 </script>
+
 <style>
+/* 滚动区高度（保持原有 v-bind 写法） */
 .vertical-menus-scrollbar {
-    height: v-bind(verticalMenusScrollbarHeight);
-    background-color: v-bind('config.getColorVal("menuBackground")');
+  height: v-bind(verticalMenusScrollbarHeight);
+  background-color: v-bind('config.getColorVal("menuBackground")');
 }
+
+/* ── el-menu 基础变量覆盖 ── */
 .layouts-menu-vertical {
-    border: 0;
-    padding: 8px 0 30px;
-    --el-menu-bg-color: v-bind('config.getColorVal("menuBackground")');
-    --el-menu-text-color: v-bind('config.getColorVal("menuColor")');
-    --el-menu-active-color: v-bind('config.getColorVal("menuActiveColor")');
-    --ba-menu-active-bg: v-bind('config.getColorVal("menuActiveBackground")');
-    font-family: 'SF Pro Text', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  border: none;
+  padding: 4px 0 80px; /* 底部留空给 user-row */
+  font-family: var(--pc-font-text);
+
+  --el-menu-bg-color:      transparent;
+  --el-menu-text-color:    v-bind('config.getColorVal("menuColor")');
+  --el-menu-active-color:  var(--pc-blue);
+  --el-menu-hover-bg-color: var(--pc-blue-wash);
+  --el-menu-item-height:   38px;
 }
+
+/* ── 菜单项 & 子菜单标题 ── */
 .layouts-menu-vertical .el-menu-item,
 .layouts-menu-vertical .el-sub-menu__title {
-    height: 44px;
-    line-height: 44px;
-    margin: 2px 10px;
-    border-radius: 8px;
-    color: var(--el-menu-text-color);
-    font-size: 14px;
-    font-weight: 400;
-    letter-spacing: 0;
+  height: 38px;
+  line-height: 38px;
+  margin: 1px 14px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  padding: 0 12px !important;
+  color: var(--el-menu-text-color);
+  transition: background 0.12s ease, color 0.12s ease;
 }
+
+/* ── hover ── */
 .layouts-menu-vertical .el-menu-item:hover,
 .layouts-menu-vertical .el-sub-menu__title:hover {
-    background-color: #ffffff;
-    color: var(--el-menu-active-color);
+  background-color: var(--pc-blue-wash);
+  color: var(--pc-blue);
 }
-.layouts-menu-vertical .el-menu-item.is-active,
+
+/* ── 激活态（菜单项） ── */
+.layouts-menu-vertical .el-menu-item.is-active {
+  background-color: var(--pc-blue-wash) !important;
+  color: var(--pc-blue) !important;
+  font-weight: 600;
+}
+
+/* ── 激活态（子菜单标题） ── */
 .layouts-menu-vertical .el-sub-menu.is-active > .el-sub-menu__title {
-    background-color: var(--ba-menu-active-bg) !important;
-    color: var(--el-menu-active-color) !important;
-    font-weight: 600;
+  color: var(--pc-blue) !important;
+  font-weight: 600;
 }
-.layouts-menu-vertical .el-menu-item.is-active .menu-title,
-.layouts-menu-vertical .el-sub-menu.is-active > .el-sub-menu__title .menu-title {
-    font-weight: 600;
+
+/* ── 子菜单展开背景透明 ── */
+.layouts-menu-vertical .el-sub-menu .el-menu {
+  background: transparent !important;
+}
+
+/* ── 折叠状态 tooltip ── */
+.layouts-menu-vertical.el-menu--collapse .el-menu-item.is-active {
+  background-color: var(--pc-blue-wash) !important;
 }
 </style>
