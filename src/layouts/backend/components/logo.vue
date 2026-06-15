@@ -9,8 +9,8 @@
   <div class="pc-logo-wrap">
 
     <!-- Logo 区 -->
-    <div class="pc-logo">
-      <div class="pc-logo__icon">
+    <div class="pc-logo" :class="{ 'pc-logo--collapsed': config.layout.menuCollapse }">
+      <div v-if="!config.layout.menuCollapse" class="pc-logo__icon">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
              stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>
@@ -83,6 +83,11 @@ const onMenuCollapse = () => {
   min-height: 60px;
 }
 
+.pc-logo--collapsed {
+  justify-content: center;
+  padding: 14px 0 10px;
+}
+
 .pc-logo__icon {
   width: 34px;
   height: 34px;
@@ -126,6 +131,12 @@ const onMenuCollapse = () => {
 
 .pc-logo__fold--unfold {
   margin: 0 auto;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* ── Context Pill ── */

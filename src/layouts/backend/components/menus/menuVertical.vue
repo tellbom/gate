@@ -123,4 +123,38 @@ onBeforeRouteUpdate((to) => { currentRouteActive(to) })
 .layouts-menu-vertical.el-menu--collapse .el-menu-item.is-active {
   background-color: var(--pc-blue-wash) !important;
 }
+
+/* 折叠态：让图标独占并在 64px 侧栏内居中 */
+.layouts-menu-vertical.el-menu--collapse {
+  width: 64px;
+}
+
+.layouts-menu-vertical.el-menu--collapse .el-menu-item,
+.layouts-menu-vertical.el-menu--collapse .el-sub-menu__title {
+  width: 38px;
+  height: 38px;
+  line-height: 38px;
+  margin: 1px auto;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layouts-menu-vertical.el-menu--collapse .el-menu-item > .icon,
+.layouts-menu-vertical.el-menu--collapse .el-sub-menu__title > .icon {
+  width: 20px !important;
+  height: 20px;
+  margin: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.layouts-menu-vertical.el-menu--collapse .menu-title,
+.layouts-menu-vertical.el-menu--collapse .menu-unread-badge,
+.layouts-menu-vertical.el-menu--collapse .el-sub-menu__icon-arrow {
+  display: none !important;
+}
 </style>
