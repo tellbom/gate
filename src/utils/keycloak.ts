@@ -1,10 +1,5 @@
 /*
- * @Author: fzq
- * @Date: 2026-05-27 11:43:25
- * @LastEditors: fzq
- * @LastEditTime: 2026-05-27 14:11:49
- * @Description:
- * @FilePath: \web\src\utils\keycloak.ts
+ * Keycloak SSO helpers.
  */
 import Keycloak from 'keycloak-js'
 import type { KeycloakInitOptions, KeycloakInstance } from 'keycloak-js'
@@ -12,48 +7,33 @@ import { useAdminInfo } from '/@/stores/adminInfo'
 
 let keycloak: KeycloakInstance | null = null
 let sessionPollTimer: ReturnType<typeof setInterval> | null = null
+let keycloakInitialized = false
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  背景：
-//  keycloak-js 内部有三处 Web Crypto 调用，全部在非 Secure Context（HTTP）下失败：
-//
-//  1. createUUID()       → crypto.randomUUID()
-//     用于生成 state / nonce，在 HTTP 下不可用（需要 Secure Context）
-//
-//  2. generateRandomData() → crypto.getRandomValues()
-//     用于生成 PKCE code_verifier，Chrome 102 HTTP 下实际可用，
-//     但 keycloak-js 的防御检测写的是 typeof crypto.getRandomValues === 'undefined'，
-//     可能因为 crypto 对象整体不可达而失败
-//
-//  3. generatePkceChallenge() → crypto.subtle.digest('SHA-256', ...)
-//     用于 PKCE code_challenge，HTTP 下 subtle 为 undefined
-//
-//  解决方案：在调用 kc.init() 之前，把上面三个全部 polyfill 到 globalThis.crypto，
-//  且只在对应方法缺失时才注入，不影响 HTTPS 正式环境。
-// ─────────────────────────────────────────────────────────────────────────────
+const TOKEN_MIN_VALIDITY_SECONDS = 30
+const TOKEN_REFRESH_INTERVAL_SECONDS = 20
 
-/**
- * 登录成功后调用，每隔 intervalSeconds 秒检查一次 session 是否还有效。
- * 管理员踢人后，下次刷新 token 会失败，前端自动登出。
- */
-export function startSessionPoll(intervalSeconds = 60) {
+function syncKeycloakTokens(kc: KeycloakInstance) {
+    const adminInfo = useAdminInfo()
+    if (kc.token) adminInfo.setToken(kc.token, 'auth')
+    if (kc.refreshToken) adminInfo.setToken(kc.refreshToken, 'refresh')
+}
+
+export async function refreshKeycloakToken(minValidity = TOKEN_MIN_VALIDITY_SECONDS) {
+    const kc = getKeycloak()
+    if (!keycloakInitialized || !kc.authenticated) return false
+
+    const refreshed = await kc.updateToken(minValidity)
+    syncKeycloakTokens(kc)
+    return refreshed
+}
+
+export function startSessionPoll(intervalSeconds = TOKEN_REFRESH_INTERVAL_SECONDS) {
     stopSessionPoll()
     sessionPollTimer = setInterval(async () => {
-        const kc = getKeycloak()
         try {
-            // minValidity=0 强制刷新，不走本地缓存
-            const refreshed = await kc.updateToken(0)
-            if (refreshed) {
-                // token 已更新，同步写入 store
-                const adminInfo = useAdminInfo()
-                adminInfo.dataFill({
-                    ...adminInfo,
-                    token: kc.token!,
-                    refresh_token: kc.refreshToken || '',
-                })
-            }
-        } catch {
-            // 刷新失败 = session 已被踢或过期，强制登出
+            await refreshKeycloakToken(TOKEN_MIN_VALIDITY_SECONDS)
+        } catch (error) {
+            console.error('[keycloak] token refresh failed:', error)
             stopSessionPoll()
             await logoutWithKeycloak()
         }
@@ -67,7 +47,6 @@ export function stopSessionPoll() {
     }
 }
 
-/** 纯 JS SHA-256，仅用于 PKCE challenge，不依赖任何第三方库 */
 function sha256(data: ArrayBuffer): ArrayBuffer {
     const K = new Uint32Array([
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -122,18 +101,9 @@ function sha256(data: ArrayBuffer): ArrayBuffer {
     return out.buffer
 }
 
-/**
- * 为 HTTP 非 Secure Context 环境（内网浏览器）补全 keycloak-js 所需的三个 Web Crypto API：
- *   1. crypto.getRandomValues  — 生成随机字节（code_verifier）
- *   2. crypto.randomUUID       — 生成 state / nonce UUID
- *   3. crypto.subtle.digest    — PKCE SHA-256 challenge
- *
- * HTTPS 正式环境浏览器原生已有，此函数不会覆盖任何已存在的方法。
- */
 function injectCryptoPolyfill(): void {
     if (typeof window === 'undefined') return
 
-    // 确保 crypto 对象本身存在
     if (!(window as any).crypto) {
         Object.defineProperty(window, 'crypto', {
             value: {},
@@ -144,16 +114,13 @@ function injectCryptoPolyfill(): void {
 
     const c = window.crypto as any
 
-    // ── 1. getRandomValues ────────────────────────────────────────
-    // Chrome 102 HTTP 下通常可用，但做防御检测
     if (typeof c.getRandomValues !== 'function') {
         c.getRandomValues = function <T extends ArrayBufferView>(buf: T): T {
-            // xorshift128+ 伪随机，用于 HTTP 降级场景
-            // 足够 PKCE code_verifier 的用途（不作加密密钥用）
-            let [s0, s1] = [Date.now() ^ 0xdeadbeef, performance.now() * 1000 ^ 0xcafebabe]
+            let s0 = (Date.now() ^ 0xdeadbeef) >>> 0
+            let s1 = ((performance.now() * 1000) ^ 0xcafebabe) >>> 0
             const arr = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength)
             for (let i = 0; i < arr.length; i++) {
-                let t = s1
+                const t = s1
                 s0 ^= s0 << 23
                 s0 ^= s0 >>> 17
                 s0 ^= t ^ (t >>> 26)
@@ -164,21 +131,17 @@ function injectCryptoPolyfill(): void {
         }
     }
 
-    // ── 2. randomUUID ────────────────────────────────────────────
-    // HTTP 下 chrome.randomUUID 不存在，用 getRandomValues 实现标准 v4 UUID
     if (typeof c.randomUUID !== 'function') {
         c.randomUUID = function (): string {
             const b = new Uint8Array(16)
             c.getRandomValues(b)
-            // RFC 4122 v4
             b[6] = (b[6] & 0x0f) | 0x40
             b[8] = (b[8] & 0x3f) | 0x80
             const h = Array.from(b).map(x => x.toString(16).padStart(2, '0')).join('')
-            return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`
+            return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`
         }
     }
 
-    // ── 3. subtle.digest('SHA-256') ──────────────────────────────
     if (!c.subtle) {
         c.subtle = {
             digest(algorithm: AlgorithmIdentifier, data: BufferSource): Promise<ArrayBuffer> {
@@ -196,8 +159,6 @@ function injectCryptoPolyfill(): void {
         }
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 function getRealmConfig() {
     const realmUrl = (import.meta.env.VITE_KEYCLOAK_REALM_URL as string).replace(/\/$/, '')
@@ -231,32 +192,64 @@ export function getKeycloakLogoutRedirectUri() {
     return `${window.location.origin}/`
 }
 
+function createKeycloakInitOptions(onLoad: 'login-required' | 'check-sso', redirectUri = getKeycloakLoginRedirectUri()): KeycloakInitOptions {
+    const adminInfo = useAdminInfo()
+
+    return {
+        onLoad,
+        pkceMethod: 'S256',
+        checkLoginIframe: false,
+        redirectUri,
+        token: adminInfo.token || undefined,
+        refreshToken: adminInfo.refresh_token || undefined,
+    }
+}
+
+async function initKeycloak(onLoad: 'login-required' | 'check-sso', redirectUri?: string) {
+    const kc = getKeycloak()
+    if (keycloakInitialized) return !!kc.authenticated
+
+    const authenticated = await kc.init(createKeycloakInitOptions(onLoad, redirectUri))
+    keycloakInitialized = true
+    return authenticated
+}
+
 export async function loginWithKeycloak() {
-    // 必须在 new Keycloak() / kc.init() 之前注入
-    // keycloak-js 在 createUUID() 和 generateRandomData() 里做了同步检测
     injectCryptoPolyfill()
 
     const kc = getKeycloak()
-    const adminInfo = useAdminInfo()
-
-    const initOptions: KeycloakInitOptions = {
-        onLoad: 'login-required',
-        pkceMethod: 'S256',
-        checkLoginIframe: false,
-        redirectUri: getKeycloakLoginRedirectUri(),
-    }
-
-    const authenticated = await kc.init(initOptions)
+    const authenticated = await initKeycloak('login-required')
     if (!authenticated || !kc.token) {
         await kc.login({ redirectUri: getKeycloakLoginRedirectUri() })
         return false
     }
-    if (kc.token) {
-        adminInfo.setToken(kc.token, 'auth')
-    }
-    startSessionPoll(60)   // 每 60 秒检查一次，按需调整
 
+    await refreshKeycloakToken(TOKEN_MIN_VALIDITY_SECONDS)
+    startSessionPoll()
     return true
+}
+
+export async function ensureKeycloakSession() {
+    try {
+        injectCryptoPolyfill()
+
+        const kc = getKeycloak()
+        const authenticated = await initKeycloak('check-sso', window.location.href)
+        if (!authenticated || !kc.token) {
+            stopSessionPoll()
+            useAdminInfo().removeToken()
+            return false
+        }
+
+        await refreshKeycloakToken(TOKEN_MIN_VALIDITY_SECONDS)
+        startSessionPoll()
+        return true
+    } catch (error) {
+        console.error('[keycloak] session restore failed:', error)
+        stopSessionPoll()
+        useAdminInfo().removeToken()
+        return false
+    }
 }
 
 export async function logoutWithKeycloak() {
@@ -264,6 +257,8 @@ export async function logoutWithKeycloak() {
     const config = getRealmConfig()
     const idTokenHint = keycloak?.idToken
 
+    stopSessionPoll()
+    keycloakInitialized = false
     adminInfo.removeToken()
 
     const logoutUrl = new URL(`${config.realmUrl}/protocol/openid-connect/logout`)
