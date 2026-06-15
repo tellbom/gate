@@ -112,6 +112,10 @@ watch(
 .layout-container .layout-main {
   padding: 0 !important;
   width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .layout-main-scrollbar {
   width: 100%;

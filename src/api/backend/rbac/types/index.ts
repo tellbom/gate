@@ -161,6 +161,7 @@ export interface GroupItem {
     parent_group_code?: string | null
     project: string
     status: RecordStatus
+    memberCount?: number
     permissionCodes: string[]
     permission_codes?: string[]
     children?: GroupItem[]
@@ -174,6 +175,7 @@ export interface GroupCreateForm {
     status: RecordStatus
     /** 提交 ruleCode 列表，服务端推导 permissionCodes；["*"] 表示全部 */
     ruleCodes: string[]
+    extraPermissionCodes?: string[]
 }
 
 /** PUT /api/group/{groupCode} 请求体（null 字段不修改） */

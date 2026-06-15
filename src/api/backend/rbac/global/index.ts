@@ -23,9 +23,11 @@ export interface GlobalUserListQuery extends PagedQuery {
 }
 
 export interface GlobalGroupListQuery extends PagedQuery {
+    keyword?: string
     project?: string
     groupCode?: string
     permissionCode?: string
+    status?: 'Active' | 'Disabled'
 }
 
 export interface GlobalMenuListQuery extends PagedQuery {

@@ -6,6 +6,7 @@
     direction="rtl"
     :before-close="handleBeforeClose"
     class="news-editor-drawer editor-drawer"
+    append-to-body
     destroy-on-close
   >
     <div class="drawer-content">
