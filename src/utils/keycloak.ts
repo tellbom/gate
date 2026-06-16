@@ -192,24 +192,33 @@ export function getKeycloakLogoutRedirectUri() {
     return `${window.location.origin}/`
 }
 
-function createKeycloakInitOptions(onLoad: 'login-required' | 'check-sso', redirectUri = getKeycloakLoginRedirectUri()): KeycloakInitOptions {
+function createKeycloakInitOptions(
+    onLoad: 'login-required' | 'check-sso',
+    redirectUri = getKeycloakLoginRedirectUri(),
+    useStoredTokens = true
+): KeycloakInitOptions {
     const adminInfo = useAdminInfo()
 
-    return {
+    const options: KeycloakInitOptions = {
         onLoad,
         pkceMethod: 'S256',
         checkLoginIframe: false,
         redirectUri,
-        token: adminInfo.token || undefined,
-        refreshToken: adminInfo.refresh_token || undefined,
     }
+
+    if (useStoredTokens) {
+        options.token = adminInfo.token || undefined
+        options.refreshToken = adminInfo.refresh_token || undefined
+    }
+
+    return options
 }
 
-async function initKeycloak(onLoad: 'login-required' | 'check-sso', redirectUri?: string) {
+async function initKeycloak(onLoad: 'login-required' | 'check-sso', redirectUri?: string, useStoredTokens = true) {
     const kc = getKeycloak()
     if (keycloakInitialized) return !!kc.authenticated
 
-    const authenticated = await kc.init(createKeycloakInitOptions(onLoad, redirectUri))
+    const authenticated = await kc.init(createKeycloakInitOptions(onLoad, redirectUri, useStoredTokens))
     keycloakInitialized = true
     return authenticated
 }
@@ -218,7 +227,7 @@ export async function loginWithKeycloak() {
     injectCryptoPolyfill()
 
     const kc = getKeycloak()
-    const authenticated = await initKeycloak('login-required')
+    const authenticated = await initKeycloak('login-required', getKeycloakLoginRedirectUri(), false)
     if (!authenticated || !kc.token) {
         await kc.login({ redirectUri: getKeycloakLoginRedirectUri() })
         return false
