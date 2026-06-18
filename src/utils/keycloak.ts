@@ -12,15 +12,90 @@ let keycloakInitialized = false
 const TOKEN_MIN_VALIDITY_SECONDS = 30
 const TOKEN_REFRESH_INTERVAL_SECONDS = 20
 
+function getJwtExpiresAt(token: string) {
+    const [, payload] = token.split('.')
+    if (!payload) return null
+
+    try {
+        const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
+        const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=')
+        const parsed = JSON.parse(window.atob(padded))
+        return typeof parsed.exp === 'number' ? parsed.exp : null
+    } catch (error) {
+        console.warn('[keycloak] failed to parse token expiration:', error)
+        return null
+    }
+}
+
+function isStoredTokenExpiring(token: string, minValidity: number) {
+    const expiresAt = getJwtExpiresAt(token)
+    if (!expiresAt) return false
+
+    return expiresAt - Math.ceil(Date.now() / 1000) - minValidity < 0
+}
+
+function isExternalAccessTokenSession() {
+    const adminInfo = useAdminInfo()
+    return !!adminInfo.token && !adminInfo.refresh_token
+}
+
+function injectPromisePolyfill(): void {
+    const PromiseWithResolvers = Promise as typeof Promise & {
+        withResolvers?: <T>() => {
+            promise: Promise<T>
+            resolve: (value: T | PromiseLike<T>) => void
+            reject: (reason?: any) => void
+        }
+    }
+
+    if (typeof PromiseWithResolvers.withResolvers === 'function') return
+
+    PromiseWithResolvers.withResolvers = function <T>() {
+        let resolve!: (value: T | PromiseLike<T>) => void
+        let reject!: (reason?: any) => void
+        const promise = new Promise<T>((res, rej) => {
+            resolve = res
+            reject = rej
+        })
+
+        return { promise, resolve, reject }
+    }
+}
+
 function syncKeycloakTokens(kc: KeycloakInstance) {
     const adminInfo = useAdminInfo()
     if (kc.token) adminInfo.setToken(kc.token, 'auth')
     if (kc.refreshToken) adminInfo.setToken(kc.refreshToken, 'refresh')
 }
 
+async function expireKeycloakSession() {
+    stopSessionPoll()
+    keycloakInitialized = false
+    useAdminInfo().removeToken()
+
+    const { default: router } = await import('/@/router/index')
+    if (router.currentRoute.value.name !== 'adminLogin') {
+        await router.replace({ name: 'adminLogin' })
+    }
+}
+
 export async function refreshKeycloakToken(minValidity = TOKEN_MIN_VALIDITY_SECONDS) {
     const kc = getKeycloak()
-    if (!keycloakInitialized || !kc.authenticated) return false
+    const adminInfo = useAdminInfo()
+    if (!keycloakInitialized || !kc.authenticated) {
+        if (isExternalAccessTokenSession() && isStoredTokenExpiring(adminInfo.token, minValidity)) {
+            throw new Error('[keycloak] stored token is expiring and no refresh token is available.')
+        }
+        return false
+    }
+
+    if (!kc.refreshToken) {
+        syncKeycloakTokens(kc)
+        if (kc.isTokenExpired(minValidity)) {
+            throw new Error('[keycloak] token is expiring and no refresh token is available.')
+        }
+        return false
+    }
 
     const refreshed = await kc.updateToken(minValidity)
     syncKeycloakTokens(kc)
@@ -34,8 +109,7 @@ export function startSessionPoll(intervalSeconds = TOKEN_REFRESH_INTERVAL_SECOND
             await refreshKeycloakToken(TOKEN_MIN_VALIDITY_SECONDS)
         } catch (error) {
             console.error('[keycloak] token refresh failed:', error)
-            stopSessionPoll()
-            await logoutWithKeycloak()
+            await expireKeycloakSession()
         }
     }, intervalSeconds * 1000)
 }
@@ -103,6 +177,8 @@ function sha256(data: ArrayBuffer): ArrayBuffer {
 
 function injectCryptoPolyfill(): void {
     if (typeof window === 'undefined') return
+
+    injectPromisePolyfill()
 
     if (!(window as any).crypto) {
         Object.defineProperty(window, 'crypto', {
@@ -193,18 +269,19 @@ export function getKeycloakLogoutRedirectUri() {
 }
 
 function createKeycloakInitOptions(
-    onLoad: 'login-required' | 'check-sso',
+    onLoad?: 'login-required' | 'check-sso',
     redirectUri = getKeycloakLoginRedirectUri(),
     useStoredTokens = true
 ): KeycloakInitOptions {
     const adminInfo = useAdminInfo()
 
     const options: KeycloakInitOptions = {
-        onLoad,
         pkceMethod: 'S256',
         checkLoginIframe: false,
         redirectUri,
     }
+
+    if (onLoad) options.onLoad = onLoad
 
     if (useStoredTokens) {
         options.token = adminInfo.token || undefined
@@ -214,7 +291,7 @@ function createKeycloakInitOptions(
     return options
 }
 
-async function initKeycloak(onLoad: 'login-required' | 'check-sso', redirectUri?: string, useStoredTokens = true) {
+async function initKeycloak(onLoad?: 'login-required' | 'check-sso', redirectUri?: string, useStoredTokens = true) {
     const kc = getKeycloak()
     if (keycloakInitialized) return !!kc.authenticated
 
@@ -225,6 +302,16 @@ async function initKeycloak(onLoad: 'login-required' | 'check-sso', redirectUri?
 
 export async function loginWithKeycloak() {
     injectCryptoPolyfill()
+
+    const adminInfo = useAdminInfo()
+    if (isExternalAccessTokenSession()) {
+        if (isStoredTokenExpiring(adminInfo.token, TOKEN_MIN_VALIDITY_SECONDS)) {
+            adminInfo.removeToken()
+        } else {
+            startSessionPoll()
+            return true
+        }
+    }
 
     const kc = getKeycloak()
     const authenticated = await initKeycloak('login-required', getKeycloakLoginRedirectUri(), false)
@@ -242,11 +329,23 @@ export async function ensureKeycloakSession() {
     try {
         injectCryptoPolyfill()
 
+        const adminInfo = useAdminInfo()
+        if (isExternalAccessTokenSession() && !keycloakInitialized) {
+            if (isStoredTokenExpiring(adminInfo.token, TOKEN_MIN_VALIDITY_SECONDS)) {
+                stopSessionPoll()
+                adminInfo.removeToken()
+                return false
+            }
+
+            startSessionPoll()
+            return true
+        }
+
         const kc = getKeycloak()
-        const authenticated = await initKeycloak('check-sso', window.location.href)
+        const authenticated = await initKeycloak(undefined, window.location.href)
         if (!authenticated || !kc.token) {
             stopSessionPoll()
-            useAdminInfo().removeToken()
+            adminInfo.removeToken()
             return false
         }
 
