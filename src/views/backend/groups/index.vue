@@ -248,7 +248,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { Search, Plus, Close, Lock, Edit } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import ContactSelector  from '/@/components/ContactSelector.vue'
@@ -284,6 +284,7 @@ const loading = ref(false)
 const rows    = ref<GroupItem[]>([])
 const total   = ref(0)
 const projects = ref<string[]>([])
+let groupsRequestSeq = 0
 
 /* ── 详情 ── */
 const drawerVisible   = ref(false)
@@ -294,6 +295,7 @@ const membersLoading  = ref(false)
 const memberTotal = ref(0)
 const memberDialogVisible = ref(false)
 const memberQuery = reactive({ page: 1, pageSize: 10 })
+let membersRequestSeq = 0
 
 /* ── 新建 ── */
 const formDrawerVisible = ref(false)
@@ -307,6 +309,7 @@ onMounted(async () => {
 })
 
 async function loadGroups() {
+  const requestSeq = ++groupsRequestSeq
   loading.value = true
   try {
     const res = await getGlobalGroups({
@@ -316,13 +319,35 @@ async function loadGroups() {
       page:     query.page,
       pageSize: query.pageSize,
     })
-    rows.value  = res.list  || []
+    if (requestSeq !== groupsRequestSeq) return
+    const list = res.list || []
+    rows.value = list
     total.value = res.total || 0
+    rows.value = await loadCurrentPageMemberCounts(list, requestSeq)
   } finally {
-    loading.value = false
+    if (requestSeq === groupsRequestSeq) loading.value = false
   }
 }
 function onSearch() { query.page = 1; loadGroups() }
+
+async function loadCurrentPageMemberCounts(groups: GroupItem[], requestSeq: number): Promise<GroupItem[]> {
+  const groupsWithCounts = await Promise.all(
+    groups.map(async (group) => {
+      try {
+        const res = await getGlobalUsers({
+          project: group.project,
+          groupCode: group.groupCode,
+          page: 1,
+          pageSize: 1,
+        })
+        return { ...group, memberCount: res.total || 0 }
+      } catch {
+        return group
+      }
+    })
+  )
+  return requestSeq === groupsRequestSeq ? groupsWithCounts : rows.value
+}
 
 /* ── 详情抽屉 ── */
 async function openDetail(g: GroupItem) {
@@ -333,44 +358,23 @@ async function openDetail(g: GroupItem) {
   await loadDetailMembers()
 }
 
-async function fetchProjectUsersExhaustive(project: string): Promise<AdminItem[]> {
-  const pageSize = 100
-  const batchSize = 4
-  const all: AdminItem[] = []
-  let nextPage = 1
-
-  while (true) {
-    const pages = Array.from({ length: batchSize }, (_, i) => nextPage + i)
-    const results = await Promise.all(
-      pages.map(page => getGlobalUsers({ project, page, pageSize }).catch(() => ({ list: [], total: 0 })))
-    )
-    const lists = results.map(r => r.list || [])
-    all.push(...lists.flat())
-    nextPage += batchSize
-
-    if (lists.some(list => list.length < pageSize)) break
-  }
-
-  const seen = new Set<string>()
-  return all.filter((u) => {
-    if (seen.has(u.userid)) return false
-    seen.add(u.userid)
-    return true
-  })
-}
-
 async function loadDetailMembers() {
   if (!selectedGroup.value) return
   const group = selectedGroup.value
+  const requestSeq = ++membersRequestSeq
   membersLoading.value = true
   try {
-    const users = await fetchProjectUsersExhaustive(group.project)
-    const members = users.filter(u => (u.groupCodes || []).includes(group.groupCode))
-    memberTotal.value = members.length
-    const start = (memberQuery.page - 1) * memberQuery.pageSize
-    detailMembers.value = members.slice(start, start + memberQuery.pageSize)
+    const res = await getGlobalUsers({
+      project: group.project,
+      groupCode: group.groupCode,
+      page: memberQuery.page,
+      pageSize: memberQuery.pageSize,
+    })
+    if (requestSeq !== membersRequestSeq || selectedGroup.value?.groupCode !== group.groupCode || selectedGroup.value?.project !== group.project) return
+    detailMembers.value = res.list || []
+    memberTotal.value = res.total || 0
   } finally {
-    membersLoading.value = false
+    if (requestSeq === membersRequestSeq) membersLoading.value = false
   }
 }
 

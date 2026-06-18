@@ -444,6 +444,16 @@ defineExpose({ clearSelection })
 }
 
 /* ── 单元格文字 ── */
+:deep(.el-button--primary.is-link) {
+  --el-button-text-color: var(--wf-primary);
+  --el-button-hover-link-text-color: var(--wf-primary-hover);
+  --el-button-active-color: var(--wf-primary);
+}
+
+:deep(.el-button--primary.is-link:hover) {
+  color: var(--wf-primary-hover);
+}
+
 .cell-text {
   overflow: hidden;
   text-overflow: ellipsis;
