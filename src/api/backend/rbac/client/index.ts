@@ -118,12 +118,12 @@ function removePending(config: AxiosRequestConfig): void {
     pendingMap.delete(key)
 }
 
-function getUrl():string {
+function getUrl(): string {
     const baseURL: string =
-    (import.meta.env.VITE_RBAC_BASE_URL as string) ||
-    (import.meta.env.VITE_AXIOS_BASE_URL as string) ||
-    window.location.protocol + '//' + window.location.host
-    return '/rbacServer';
+        (import.meta.env.VITE_RBAC_BASE_URL as string) ||
+        (import.meta.env.VITE_AXIOS_BASE_URL as string) ||
+        window.location.protocol + '//' + window.location.host
+    return baseURL
 }
 
 // ── 创建 RBAC 专用实例 ────────────────────────────────────────────────────────

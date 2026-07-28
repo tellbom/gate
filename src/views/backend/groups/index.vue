@@ -229,15 +229,22 @@
 
     <el-dialog
       v-model="memberDialogVisible"
-      title="选择成员"
+      :title="`选择成员 · ${selectedGroup?.project || ''}`"
       width="980px"
       append-to-body
       destroy-on-close
       class="pc-member-dialog"
     >
+      <el-alert
+        title="仅显示已获得当前 Project 授权的用户；未加入系统的用户请先到 Project 授权管理中添加。"
+        type="info"
+        show-icon
+        :closable="false"
+        style="margin-bottom:12px"
+      />
       <ContactSelector
-        :org-list="MOCK_ORGS"
-        :user-list="MOCK_USERS"
+        :org-list="PROJECT_MEMBER_ORGS"
+        :fetch-users="fetchProjectMembers"
         :multiple="true"
         @confirm="onMemberConfirm"
         @cancel="memberDialogVisible = false"
@@ -265,15 +272,8 @@ import {
   type GroupItem, type AdminItem,
 } from '/@/api/backend/rbac'
 
-/* ── Mock 人员（待替换） ── */
-const MOCK_ORGS = [
-  { id: 'root', pid: null, name: '总公司' },
-  { id: 'tech', pid: 'root', name: '技术中心' },
-]
-const MOCK_USERS = [
-  { id: '1', name: '张三', workNo: 'u001', phone: '13800000001', position: '工程师', orgId: 'tech' },
-  { id: '2', name: '李四', workNo: 'u002', phone: '13800000002', position: '经理', orgId: 'tech' },
-  { id: '3', name: '王五', workNo: 'u003', phone: '13800000003', position: '专员', orgId: 'tech' },
+const PROJECT_MEMBER_ORGS = [
+  { id: 'project-members', pid: null, name: '当前系统已授权用户' },
 ]
 
 defineOptions({ name: 'backend/groups' })
@@ -378,6 +378,33 @@ async function loadDetailMembers() {
   }
 }
 
+async function fetchProjectMembers(params: {
+  keyword?: string
+  page: number
+  pageSize: number
+}) {
+  if (!selectedGroup.value) return { list: [], total: 0 }
+
+  const res = await getGlobalUsers({
+    project: selectedGroup.value.project,
+    keyword: params.keyword,
+    page: params.page,
+    pageSize: params.pageSize,
+  })
+
+  return {
+    total: res.total || 0,
+    list: (res.list || []).map(user => ({
+      id: user.userid,
+      name: user.username || user.userid,
+      workNo: user.userid,
+      phone: '',
+      position: (user.groupNames || []).join('、') || '未分配角色组',
+      orgId: 'project-members',
+    })),
+  }
+}
+
 async function toggleStatus(active: boolean) {
   if (!selectedGroup.value) return
   statusLoading.value = true
@@ -396,15 +423,24 @@ async function toggleStatus(active: boolean) {
 async function onMemberConfirm(users: Array<{ workNo: string; name: string }>) {
   memberDialogVisible.value = false
   if (!selectedGroup.value || !users.length) return
+  let successCount = 0
+  const failedUsers: string[] = []
   for (const u of users) {
     try {
-      await addGlobalGroupMember(selectedGroup.value.groupCode, {
+      const report = await addGlobalGroupMember(selectedGroup.value.groupCode, {
         userid: u.workNo,
         targetProject: selectedGroup.value.project,
       })
-    } catch { ElMessage.warning(`${u.name} 添加失败`) }
+      if (report.failureCount > 0) failedUsers.push(u.name)
+      else successCount++
+    } catch {
+      failedUsers.push(u.name)
+    }
   }
-  ElMessage.success(`已添加 ${users.length} 名成员`)
+  if (successCount > 0) ElMessage.success(`已添加 ${successCount} 名成员`)
+  if (failedUsers.length > 0) {
+    ElMessage.warning(`${failedUsers.join('、')} 添加失败，请确认用户已加入当前 Project`)
+  }
   await loadDetailMembers()
   await loadGroups()
 }

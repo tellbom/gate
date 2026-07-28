@@ -57,6 +57,7 @@ export async function initRbacBridge(): Promise<RbacBridgeResult> {
       username: result.adminInfo.username,
       project:  result.adminInfo.project,
       super:    result.adminInfo.super,
+      loginIp:  result.adminInfo.loginIp,
     })
 
     // 同步 token（login 接口回传的就是请求中携带的 token，幂等写入）
@@ -99,6 +100,7 @@ export async function loadRbacBackendIndex() {
       username: result.adminInfo.username,
       project:  result.adminInfo.project,
       super:    result.adminInfo.super,
+      loginIp:  result.adminInfo.loginIp,
     })
 
     return result

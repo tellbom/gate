@@ -1,0 +1,13 @@
+.git
+.agents
+.codex
+.specify
+node_modules
+src
+public
+prototype
+specs
+temp
+api_backend
+*.md
+*.log

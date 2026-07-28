@@ -43,6 +43,7 @@ export interface RbacAdminInfo {
     username: string
     super: boolean
     project: string
+    loginIp: string
 }
 
 // ── 菜单节点（GET /api/admin/index menus / GET /api/rule/tree 节点） ─────────

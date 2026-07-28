@@ -588,7 +588,12 @@ async function revokeUserGrant(userid: string, project: string) {
     confirmButtonText: '撤销', cancelButtonText: '取消', type: 'warning',
   })
   try {
-    await revokeGlobalUserProject(userid, project)
+    const report = await revokeGlobalUserProject(userid, project)
+    if (report.failureCount > 0) {
+      const reason = report.results.find(item => !item.success)?.errorMessage
+      ElMessage.warning(reason || '请先将用户移出该系统的全部角色组')
+      return
+    }
     ElMessage.success('已撤销授权')
     if (mode.value === 'user' && selectedUser.value?.userid === userid) {
       selectedUser.value = {

@@ -109,6 +109,7 @@ export interface AdminInfo {
   userid?: string              // RBAC 业务用户 ID（操作主键）
   project?: string             // 当前 Project
   super?: boolean              // 当前 Project 下是否超管
+  loginIp?: string             // 当前登录请求的真实客户端 IP
 }
 
 

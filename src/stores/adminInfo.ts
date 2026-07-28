@@ -14,6 +14,7 @@ export const useAdminInfo = defineStore('adminInfo', {
             // ── 新增 ──────────────────────────────
             userid: '',
             project: '',
+            loginIp: '',
         }
     },
     actions: {
@@ -21,11 +22,12 @@ export const useAdminInfo = defineStore('adminInfo', {
             this.$state = { ...this.$state, ...state }
         },
         // adminInfo.ts - actions 追加
-        setRbacInfo(info: { id?: string | number; userid?: string; username?: string; project?: string; super?: boolean }) {
+        setRbacInfo(info: { id?: string | number; userid?: string; username?: string; project?: string; super?: boolean; loginIp?: string }) {
             if (info.id !== undefined) this.id = String(info.id)
             if (info.userid !== undefined) this.userid = info.userid
             if (info.project !== undefined) this.project = info.project
             if (info.super !== undefined) this.super = info.super
+            if (info.loginIp !== undefined) this.loginIp = info.loginIp
             if (info.username !== undefined) {
                 this.username = info.username
                 if (!this.nickname) this.nickname = info.username
@@ -35,6 +37,7 @@ export const useAdminInfo = defineStore('adminInfo', {
             this.userid = ''
             this.project = ''
             this.super = false
+            this.loginIp = ''
         },
 
         // adminInfo.ts - removeToken 末尾追加
