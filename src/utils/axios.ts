@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig, Method } from 'axios'
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from 'axios'
 import axios from 'axios'
 import { ElLoading, ElNotification, type LoadingOptions } from 'element-plus'
 import { refreshToken } from '/@/api/common'
@@ -10,6 +10,10 @@ import { useAdminInfo } from '/@/stores/adminInfo'
 import { useConfig } from '/@/stores/config'
 import { useUserInfo } from '/@/stores/userInfo'
 import { isAdminApp } from '/@/utils/common'
+import {
+    expireKeycloakSession,
+    forceRefreshKeycloakToken,
+} from '/@/utils/keycloak'
 
 window.requests = []
 window.tokenRefreshing = false
@@ -17,6 +21,68 @@ const pendingMap = new Map()
 const loadingInstance: LoadingInstance = {
     target: null,
     count: 0,
+}
+
+interface AuthRetryConfig extends AxiosRequestConfig {
+    _keycloakAuthRetried?: boolean
+}
+
+function hasAbpHttpError401(url?: string): boolean {
+    if (!url) return false
+
+    try {
+        return new URL(url, window.location.origin).searchParams.get('httpError') === '401'
+    } catch {
+        return /(?:^|[?&])httpError=401(?:[&#]|$)/i.test(url)
+    }
+}
+
+function getRedirectLocation(response?: AxiosResponse): string {
+    const headers = response?.headers as Record<string, string | undefined> | undefined
+    return headers?.location ?? ''
+}
+
+function getFinalResponseUrl(response?: AxiosResponse): string {
+    const request = response?.request as
+        | { responseURL?: string; _responseURL?: string }
+        | undefined
+    return request?.responseURL ?? request?._responseURL ?? ''
+}
+
+/**
+ * ABP MVC/Cookie 鉴权可能返回 302，并跳转到 ?httpError=401。
+ * 浏览器自动跟随跳转后，Axios 往往只能看到最终 200/HTML 错误页，
+ * 因此同时检查标准状态码、Location 和 XHR 最终 URL。
+ */
+function isUnauthorizedResponse(response?: AxiosResponse): boolean {
+    if (!response) return false
+    if (response.status === 401) return true
+
+    return (
+        hasAbpHttpError401(getRedirectLocation(response)) ||
+        hasAbpHttpError401(getFinalResponseUrl(response))
+    )
+}
+
+async function refreshAndRetry(
+    instance: AxiosInstance,
+    config: AuthRetryConfig,
+    originalError?: unknown
+) {
+    if (config._keycloakAuthRetried) {
+        await expireKeycloakSession()
+        return Promise.reject(originalError ?? new Error('Unauthorized after token refresh retry.'))
+    }
+
+    config._keycloakAuthRetried = true
+
+    try {
+        await forceRefreshKeycloakToken()
+        return instance.request(config)
+    } catch (refreshError) {
+        await expireKeycloakSession()
+        return Promise.reject(originalError ?? refreshError)
+    }
 }
 
 /**
@@ -99,15 +165,33 @@ function createAxios<Data = any, T = ApiPromise<Data>>(axiosConfig: AxiosRequest
 
     // 响应拦截
     Axios.interceptors.response.use(
-        (response) => {
+        async (response) => {
             removePending(response.config)
             options.loading && closeLoading(options) // 关闭loading
 
+            if (isUnauthorizedResponse(response)) {
+                return refreshAndRetry(Axios, response.config as AuthRetryConfig)
+            }
+
             return options.reductDataFormat ? response.data : response
         },
-        (error) => {
+        async (error) => {
             error.config && removePending(error.config)
             options.loading && closeLoading(options) // 关闭loading
+
+            if (isUnauthorizedResponse(error.response)) {
+                try {
+                    return await refreshAndRetry(
+                        Axios,
+                        error.config as AuthRetryConfig,
+                        error
+                    )
+                } catch (retryError) {
+                    options.showErrorMessage && httpErrorStatusHandle(error)
+                    return Promise.reject(retryError)
+                }
+            }
+
             options.showErrorMessage && httpErrorStatusHandle(error) // 处理错误状态码
             return Promise.reject(error) // 错误继续返回给到具体页面
         }

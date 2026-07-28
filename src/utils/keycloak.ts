@@ -8,6 +8,8 @@ import { useAdminInfo } from '/@/stores/adminInfo'
 let keycloak: KeycloakInstance | null = null
 let sessionPollTimer: ReturnType<typeof setInterval> | null = null
 let keycloakInitialized = false
+let tokenRefreshPromise: Promise<boolean> | null = null
+let forcedTokenRefreshPromise: Promise<boolean> | null = null
 
 const TOKEN_MIN_VALIDITY_SECONDS = 30
 const TOKEN_REFRESH_INTERVAL_SECONDS = 20
@@ -68,7 +70,7 @@ function syncKeycloakTokens(kc: KeycloakInstance) {
     if (kc.refreshToken) adminInfo.setToken(kc.refreshToken, 'refresh')
 }
 
-async function expireKeycloakSession() {
+export async function expireKeycloakSession() {
     stopSessionPoll()
     keycloakInitialized = false
     useAdminInfo().removeToken()
@@ -79,7 +81,7 @@ async function expireKeycloakSession() {
     }
 }
 
-export async function refreshKeycloakToken(minValidity = TOKEN_MIN_VALIDITY_SECONDS) {
+async function updateKeycloakToken(minValidity: number) {
     const kc = getKeycloak()
     const adminInfo = useAdminInfo()
     if (!keycloakInitialized || !kc.authenticated) {
@@ -100,6 +102,37 @@ export async function refreshKeycloakToken(minValidity = TOKEN_MIN_VALIDITY_SECO
     const refreshed = await kc.updateToken(minValidity)
     syncKeycloakTokens(kc)
     return refreshed
+}
+
+export function refreshKeycloakToken(minValidity = TOKEN_MIN_VALIDITY_SECONDS) {
+    if (!tokenRefreshPromise) {
+        tokenRefreshPromise = updateKeycloakToken(minValidity).finally(() => {
+            tokenRefreshPromise = null
+        })
+    }
+
+    return tokenRefreshPromise
+}
+
+/**
+ * 收到后端 401 时强制刷新一次 token。
+ *
+ * Keycloak updateToken(-1) 会忽略剩余有效期并强制刷新。单例 Promise
+ * 可避免 Layout 下多个并发 GET 同时收到 401 后发起多次 refresh 请求。
+ */
+export function forceRefreshKeycloakToken() {
+    if (!forcedTokenRefreshPromise) {
+        forcedTokenRefreshPromise = (async () => {
+            if (tokenRefreshPromise) {
+                await tokenRefreshPromise
+            }
+            return updateKeycloakToken(-1)
+        })().finally(() => {
+            forcedTokenRefreshPromise = null
+        })
+    }
+
+    return forcedTokenRefreshPromise
 }
 
 export function startSessionPoll(intervalSeconds = TOKEN_REFRESH_INTERVAL_SECONDS) {
