@@ -56,7 +56,7 @@
           <div class="group-card__icon">
             <el-icon :size="20"><Lock /></el-icon>
           </div>
-          <RbacStatusBadge :status="g.status as 'Active'|'Disabled'" size="sm" />
+          <RbacStatusBadge :status="g.status" size="sm" />
         </div>
         <div class="group-card__body">
           <div class="group-card__name">{{ g.groupName }}</div>
@@ -121,7 +121,7 @@
           <div style="flex:1">
             <div style="display:flex;align-items:center;gap:9px">
               <span class="pc-t-section" style="font-size:21px">{{ selectedGroup.groupName }}</span>
-              <RbacStatusBadge :status="selectedGroup.status as 'Active'|'Disabled'" />
+              <RbacStatusBadge :status="selectedGroup.status" />
             </div>
             <div class="pc-t-mono pc-t-cap" style="margin-top:2px">{{ selectedGroup.groupCode }}</div>
           </div>
@@ -159,7 +159,7 @@
           <!-- 成员 -->
           <div class="detail-section-head">
             <span class="pc-t-section">成员（{{ memberTotal }}）</span>
-            <el-button text type="primary" size="small" @click="memberDialogVisible = true">
+            <el-button text type="primary" size="small" @click="openMemberDialog">
               <el-icon><Plus /></el-icon> 添加成员
             </el-button>
           </div>
@@ -236,26 +236,28 @@
       class="pc-member-dialog"
     >
       <el-alert
-        title="仅显示已获得当前 Project 授权的用户；未加入系统的用户请先到 Project 授权管理中添加。"
+        title="组织与人员信息来自人员中心，并按工号匹配当前 Project 授权名单；未获授权的人员不会显示。"
         type="info"
         show-icon
         :closable="false"
         style="margin-bottom:12px"
       />
-      <ContactSelector
-        :org-list="PROJECT_MEMBER_ORGS"
-        :fetch-users="fetchProjectMembers"
-        :multiple="true"
-        @confirm="onMemberConfirm"
-        @cancel="memberDialogVisible = false"
-      />
+      <div v-loading="memberCandidatesLoading">
+        <ContactSelector
+          :org-list="MOCK_ORGS"
+          :user-list="projectMemberCandidates"
+          :multiple="true"
+          @confirm="onMemberConfirm"
+          @cancel="memberDialogVisible = false"
+        />
+      </div>
     </el-dialog>
 
   </main>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { Search, Plus, Close, Lock, Edit } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import ContactSelector  from '/@/components/ContactSelector.vue'
@@ -272,8 +274,15 @@ import {
   type GroupItem, type AdminItem,
 } from '/@/api/backend/rbac'
 
-const PROJECT_MEMBER_ORGS = [
-  { id: 'project-members', pid: null, name: '当前系统已授权用户' },
+/* ── Mock 人员中心数据（待替换为同结构的真实 HR 接口） ── */
+const MOCK_ORGS = [
+  { id: 'root', pid: null, name: '总公司' },
+  { id: 'tech', pid: 'root', name: '技术中心' },
+]
+const MOCK_USERS = [
+  { id: '1', name: '张三', workNo: 'u001', phone: '13800000001', position: '工程师', orgId: 'tech' },
+  { id: '2', name: '李四', workNo: 'u002', phone: '13800000002', position: '经理', orgId: 'tech' },
+  { id: '3', name: '王五', workNo: 'u003', phone: '13800000003', position: '专员', orgId: 'tech' },
 ]
 
 defineOptions({ name: 'backend/groups' })
@@ -296,6 +305,13 @@ const memberTotal = ref(0)
 const memberDialogVisible = ref(false)
 const memberQuery = reactive({ page: 1, pageSize: 10 })
 let membersRequestSeq = 0
+const memberCandidatesLoading = ref(false)
+const projectAuthorizedUserids = ref<Set<string>>(new Set())
+let memberCandidatesRequestSeq = 0
+const normalizeUserId = (value: string) => value.trim().toLowerCase()
+const projectMemberCandidates = computed(() =>
+  MOCK_USERS.filter(user => projectAuthorizedUserids.value.has(normalizeUserId(user.workNo)))
+)
 
 /* ── 新建 ── */
 const formDrawerVisible = ref(false)
@@ -378,30 +394,39 @@ async function loadDetailMembers() {
   }
 }
 
-async function fetchProjectMembers(params: {
-  keyword?: string
-  page: number
-  pageSize: number
-}) {
-  if (!selectedGroup.value) return { list: [], total: 0 }
+async function openMemberDialog() {
+  if (!selectedGroup.value) return
+  const project = selectedGroup.value.project
+  const requestSeq = ++memberCandidatesRequestSeq
+  memberDialogVisible.value = true
+  memberCandidatesLoading.value = true
+  projectAuthorizedUserids.value = new Set()
 
-  const res = await getGlobalUsers({
-    project: selectedGroup.value.project,
-    keyword: params.keyword,
-    page: params.page,
-    pageSize: params.pageSize,
-  })
+  try {
+    const userids = new Set<string>()
+    const pageSize = 100
+    let page = 1
+    let loaded = 0
+    let total = 0
 
-  return {
-    total: res.total || 0,
-    list: (res.list || []).map(user => ({
-      id: user.userid,
-      name: user.username || user.userid,
-      workNo: user.userid,
-      phone: '',
-      position: (user.groupNames || []).join('、') || '未分配角色组',
-      orgId: 'project-members',
-    })),
+    do {
+      const res = await getGlobalUsers({ project, page, pageSize })
+      if (requestSeq !== memberCandidatesRequestSeq || selectedGroup.value?.project !== project) return
+      const list = res.list || []
+      for (const user of list) userids.add(normalizeUserId(user.userid))
+      loaded += list.length
+      total = res.total || 0
+      if (list.length === 0) break
+      page++
+    } while (loaded < total)
+
+    projectAuthorizedUserids.value = userids
+  } catch {
+    if (requestSeq === memberCandidatesRequestSeq) {
+      ElMessage.error('读取当前 Project 授权用户失败')
+    }
+  } finally {
+    if (requestSeq === memberCandidatesRequestSeq) memberCandidatesLoading.value = false
   }
 }
 
