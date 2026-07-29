@@ -474,10 +474,27 @@ async function removeMember(userid: string) {
   if (!selectedGroup.value) return
   await ElMessageBox.confirm('确认移除该成员？', '移除成员', { type: 'warning' })
   try {
-    await removeGlobalGroupMember(selectedGroup.value.groupCode, userid, selectedGroup.value.project)
-    await loadDetailMembers()
-    await loadGroups()
-    ElMessage.success('已移除')
+    const groupCode = selectedGroup.value.groupCode
+    const project = selectedGroup.value.project
+    const report = await removeGlobalGroupMember(groupCode, userid, project)
+    if (report.failureCount > 0) {
+      ElMessage.error(report.results.find(result => !result.success)?.errorMessage || '操作失败')
+    } else if (report.results.some(result => result.skipped)) {
+      await loadDetailMembers()
+      ElMessage.warning('该用户已不在当前角色组中，未执行删除')
+    } else {
+      detailMembers.value = detailMembers.value.filter(member => member.userid !== userid)
+      memberTotal.value = Math.max(0, memberTotal.value - 1)
+      const updateMemberCount = (group: GroupItem): GroupItem =>
+        group.project === project && group.groupCode === groupCode
+          ? { ...group, memberCount: Math.max(0, memberTotal.value) }
+          : group
+      rows.value = rows.value.map(updateMemberCount)
+      if (selectedGroup.value?.project === project && selectedGroup.value?.groupCode === groupCode) {
+        selectedGroup.value = updateMemberCount(selectedGroup.value)
+      }
+      ElMessage.success('已移除')
+    }
   } catch { ElMessage.error('操作失败') }
 }
 

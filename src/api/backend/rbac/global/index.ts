@@ -107,8 +107,8 @@ export async function addGlobalGroupMember(groupCode: string, form: GlobalGroupM
     return rbacClient.post<any, ProjectWriteResult>(`/api/global/group/${encodeURIComponent(groupCode)}/members`, form)
 }
 
-export async function removeGlobalGroupMember(groupCode: string, userid: string, targetProject: string): Promise<void> {
-    return rbacClient.delete<any, void>(`/api/global/group/${encodeURIComponent(groupCode)}/members/${encodeURIComponent(userid)}`, {
+export async function removeGlobalGroupMember(groupCode: string, userid: string, targetProject: string): Promise<ProjectWriteResult> {
+    return rbacClient.delete<any, ProjectWriteResult>(`/api/global/group/${encodeURIComponent(groupCode)}/members/${encodeURIComponent(userid)}`, {
         params: { targetProject },
     })
 }
